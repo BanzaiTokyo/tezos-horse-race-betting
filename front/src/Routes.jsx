@@ -1,26 +1,22 @@
 import React from 'react';
-import {Route, Routes} from 'react-router-dom';
+import {Route, Switch} from 'react-router-dom';
 import {ABOUT_PATH, HOME_PATH, RACE_PATH} from "./common/Constants";
 import RacePage from "./components/RacePage";
 import AboutPage from "./components/AboutPage";
 
 const RaceRoutes = () => {
     return (
-        <Routes>
-            <Route path={HOME_PATH}
-                   element={<RacePage/>}
-                   exact
-            />
-            <Route
-                path={RACE_PATH}
-                element={<RacePage/>}
-                exact
-            />
-            <Route
-                path={ABOUT_PATH}
-                element={<AboutPage/>}
-            />
-        </Routes>);
+        <Switch>
+            <Route path={RACE_PATH}>
+                <RacePage/>
+            </Route>
+            <Route path={ABOUT_PATH}>
+                <AboutPage/>
+            </Route>
+            <Route path={HOME_PATH}>
+                <RacePage/>
+            </Route>
+        </Switch>);
 };
 
 export default RaceRoutes;

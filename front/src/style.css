@@ -1,4 +1,10 @@
 
+.navbar,
+.navbar-default {
+  background-image: linear-gradient(to right, #9a9a9a 0, #ffffff 70%) !important; /* override background image gradient w/ flat color */
+}
+
+
 .App {
   text-align: center;
 }

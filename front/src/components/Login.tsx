@@ -1,6 +1,7 @@
+import {Button} from "react-bootstrap";
 
 const LoginBlock = () => {
-    return (<div>login</div>)
+    return (<Button variant={"outline-info"}>connect wallet</Button>)
 }
 
 export default LoginBlock;

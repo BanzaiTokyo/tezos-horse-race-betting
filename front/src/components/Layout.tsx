@@ -2,11 +2,7 @@ import React from 'react'
 import {Col, Container, Row} from 'react-bootstrap';
 import Footer from "./Footer";
 import Menu from "./Menu";
-import LoginBlock from "./Login";
-import {Route, Switch} from "react-router-dom";
-
-import RacePage from "./RacePage";
-import AboutPage from "./AboutPage";
+import Routes from "../Routes";
 
 const Layout = () => {
     // const dispatch = useDispatch();
@@ -14,30 +10,21 @@ const Layout = () => {
         <div>
             <Container fluid="md">
                 {/*--------- header*/}
-                <Row>
-                    <Col color={'red'}>
-                        <Menu selectedItem={'play'}/>
+                <Row >
+                    <Col >
+                        <Menu/>
                     </Col>
-                    <Col xs lg="2">
-                        <LoginBlock/>
+
+                </Row>
+
+                <Row>
+                    <Col>
+                        {/*--------- main content*/}
+                        <Routes/>
                     </Col>
                 </Row>
 
 
-                {/*--------- main content*/}
-                here's the content:
-                <Switch>
-                    <Route path="/race">
-                        <RacePage/>
-                    </Route>
-                    <Route path="/about">
-                        <AboutPage/>
-                    </Route>
-                    <Route path="/">
-                        <RacePage/>
-                    </Route>
-                </Switch>
-                end of the content
             </Container>
 
             {/*Footer*/}
