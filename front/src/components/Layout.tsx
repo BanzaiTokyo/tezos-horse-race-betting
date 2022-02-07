@@ -3,7 +3,8 @@ import {Col, Container, Row} from 'react-bootstrap';
 import Footer from "./Footer";
 import Menu from "./Menu";
 import LoginBlock from "./Login";
-import {Switch, Route} from "react-router-dom";
+import {Route, Switch} from "react-router-dom";
+
 import RacePage from "./RacePage";
 import AboutPage from "./AboutPage";
 
@@ -26,16 +27,17 @@ const Layout = () => {
                 {/*--------- main content*/}
                 here's the content:
                 <Switch>
-                    <Route path="/">
-                        <RacePage />
-                    </Route>
                     <Route path="/race">
-                        <RacePage />
+                        <RacePage/>
                     </Route>
                     <Route path="/about">
-                        <AboutPage />
+                        <AboutPage/>
                     </Route>
-                </Switch>                end of the content
+                    <Route path="/">
+                        <RacePage/>
+                    </Route>
+                </Switch>
+                end of the content
             </Container>
 
             {/*Footer*/}
