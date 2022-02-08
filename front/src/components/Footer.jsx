@@ -24,7 +24,7 @@ function Footer() {
         <div>
             <div style={phantom} />
             <div style={style}>
-                Thanks to <a href={"https://hackathon2022.tezos.org.ua/en"}>Tezos Ukraine</a> for organizing the hackathon
+                Cheers to <a href={"https://hackathon2022.tezos.org.ua/en"}>Tezos Ukraine</a> for organizing the hackathon.
             </div>
         </div>
     )
