@@ -1,7 +1,32 @@
 import smartpy as sp
-# https://github.com/asbjornenge/tezos-randomizer
-Randomizer = sp.io.import_script_from_url("https://ipfs.infura.io/ipfs/QmPNkabMCpDmFE6GynfS9UAoQDLE6PyCLpRJQmceEp2oTv")
-UUSD_CONTRACT = sp.address('KT1PiqMJSEsZkFruWMKMpoAmRVumKk9LavX3')
+
+
+class TTransfer:
+    def get_type():
+        return sp.TRecord(
+            from_ = sp.TAddress,
+            txs = sp.TList(t = sp.TRecord(
+                                    to_ = sp.TAddress,
+                                    token_id = sp.TNat,
+                                    amount = sp.TString,
+                                )))
+    def string_of_nat(params):
+        c   = sp.map({x : str(x) for x in range(0, 10)})
+        x   = sp.local('x_son', params)
+        res = sp.local('res_son', [])
+        sp.if x.value == 0:
+            res.value.push('0')
+        sp.while 0 < x.value:
+            res.value.push(c[x.value % 10])
+            x.value //= 10
+        return sp.concat(res.value)
+
+    def make(from_, to_, amount):
+        amt_str = TTransfer.string_of_nat(amount)
+        return sp.set_type_expr(sp.record(
+            from_=from_,
+            txs=[sp.record(to_=to_, token_id=0, amount=amt_str)]), TTransfer.get_type())
+
 
 class TBet:
     def get_type():
@@ -23,13 +48,28 @@ class THorse:
             weight=weight), THorse.get_type())
 
 
+class TSection:
+    def get_type():
+        return sp.TRecord(
+            started_at = sp.TTimestamp,
+            epoch = sp.TNat,
+            positions = sp.TList(sp.TNat),
+        )
+
+    def make(epoch):
+        return sp.set_type_expr(sp.record(
+            started_at = sp.now,
+            epoch = epoch,
+            positions = [],
+        ), TSection.get_type())
+
 class TRace:
     def get_type():
         return sp.TRecord(
             horses = sp.TList(THorse.get_type()),
             bets = sp.TMap(sp.TAddress, TBet.get_type()),
             total_bet = sp.TNat,
-            section_results = sp.TList(sp.TList(sp.TNat)),
+            sections = sp.TMap(sp.TNat, TSection.get_type()),
             winner = sp.TInt
         )
 
@@ -38,24 +78,28 @@ class TRace:
             horses = horses,
             bets = {},
             total_bet = 0,
-            section_results = [],
+            sections ={},
             winner = -1,
         ), TRace.get_type())
 
 
 class HorseRace(sp.Contract):
-    def __init__(self, owner, randomizer):
+    def __init__(self, owner, randomizer, oracle, uusd):
         self.init(
             data_pool={
                 'names': ['Horse 1', 'Horse 2', 'Horse 3', 'Horse 4', 'Horse 5', 'Horse 6'],
                 'bet_types': ['winner', 'loser', 'top3'],
             },
             owner=owner,
-            randomizer=randomizer,#sp.address('tz1000000000000000000000000000000000'),
-            entropy=0,
+            randomizer=randomizer,
+            oracle=oracle,
+            uusd=uusd,
+            epoch=0,
+            entropy=sp.bytes('0xFF'),
             last_random=0,
             max_sections=4,
             num_horses=6,
+            section_time=60,  # in seconds
             commission=10,  # (in per cent, e.g. 5%)
             ledger=sp.big_map({}, tkey = sp.TAddress, tvalue = sp.TNat),
             current_race=0,
@@ -70,18 +114,14 @@ class HorseRace(sp.Contract):
                   'Only Randomizer can call this entrypoint')
         self.data.last_random = params
 
-    def _random_as_callback(self, max_):
-        t = sp.TRecord(_from=sp.TNat, _to=sp.TNat, entropy=sp.TNat, callback_address=sp.TAddress)
-        c = sp.contract(t, self.data.randomizer, entry_point="getRandomBetweenEntropy").open_some()
-        callback_address = sp.self_entry_point_address(entry_point="set_last_random")
-        params = sp.record(_from=0, _to=abs(max_-1), entropy=self.data.entropy, callback_address=callback_address)
-        sp.transfer(params, sp.mutez(0), c)
-        return self.data.last_random
+    def get_epoch(self):
+        self.data.epoch = sp.view("get_current_epoch", self.data.oracle, sp.unit, sp.TNat).open_some()
+        return self.data.epoch
 
     def _random(self, max_):
-        sp.set_type(max_, sp.TNat)
-        arg =  sp.record(_from=0, _to=abs(max_-1), entropy=self.data.last_random)
-        rnum = sp.view("getRandomBetweenEntropy", self.data.randomizer, arg, sp.TNat).open_some("Invalid view")
+        self.data.entropy = sp.view("get_entropy", self.data.oracle, self.data.epoch, sp.TBytes).open_some()
+        arg =  sp.record(_from=0, _to=abs(max_-1), entropy=self.data.entropy, includeRandomizerEntropy=True)
+        rnum = sp.view("getRandomBetweenEntropyBytes", self.data.randomizer, arg, sp.TNat).open_some()
         self.data.last_random = rnum
         return self.data.last_random
 
@@ -106,7 +146,7 @@ class HorseRace(sp.Contract):
             result_bh.value.push(horse)
         return result_bh.value
 
-    def _build_winning_probability(self):
+    def _build_winning_probability(self, race):
         """
         build a list like 00011111222233333333 where numbers are horse indexes
         and their quantity is the chance to get on the 1st position
@@ -117,7 +157,6 @@ class HorseRace(sp.Contract):
         randomiser_data = sp.local('randomiser_data', sp.map(l={0: 0}))
         n = sp.local('n', 0)
         win_probability = sp.local('win_probability', 0)
-        race = self.data.races[self.data.current_race]
 
         sp.for hh in sp.range(0, sp.len(race.horses)):
             horse_bet.value[hh] = 0
@@ -137,7 +176,7 @@ class HorseRace(sp.Contract):
             n.value = n.value + win_probability.value
         return randomiser_data
 
-    def _arrange_horses(self, chances):
+    def _arrange_racers(self, chances):
         """
         order horses in the run using results of _build_winning_probability
         """
@@ -154,7 +193,7 @@ class HorseRace(sp.Contract):
             self.data.temp[70+i_for] = chances_left.value
             p = self._random(chances_left.value)
             participant = chances.value[p]
-            self.data.temp[90+i_for] = p
+            self.data.temp[90+i_for] = participant
             run_order.value.push(participant)
             i_ah.value = 0
             sp.for chance in chances.value.values():
@@ -163,11 +202,7 @@ class HorseRace(sp.Contract):
                     i_ah.value = i_ah.value + 1
             chances.value = chances_tmp.value
             chances_tmp.value = {}
-
-        run_order.value.rev()
-        race.section_results.rev()
-        race.section_results.push(run_order.value)
-        race.section_results.rev()
+        return run_order.value
 
     def _distribute_prize(self):
         race = self.data.races[self.data.current_race]
@@ -184,51 +219,67 @@ class HorseRace(sp.Contract):
 
     @sp.entry_point
     def init_race(self):
-        sp.if self.data.randomizer == sp.address('tz1000000000000000000000000000000000'):
-            rnd = Randomizer.Randomizer(admin=sp.source, metadata={})
-            self.data.randomizer = rnd.address
-
         sp.verify(sp.source == self.data.owner, 'Not an admin')
         sp.if self.data.races.contains(self.data.current_race):
             race = self.data.races[self.data.current_race]
             sp.verify(race.winner < 0, 'There is another race in progress')
-        race_num = self.data.current_race + 1
-        self.data.races[race_num] = TRace.make(
-            horses=self._build_horses(self.data.num_horses),
-        )
-        self.data.current_race = race_num
-        self.next_section()
+        horses = self._build_horses(self.data.num_horses)
+        self.data.current_race = self.data.current_race + 1
+        race_num = self.data.current_race
+        self.data.races[race_num] = TRace.make(horses=horses)
+        race = self.data.races[race_num]
+        # I compelled to do this nasty hack with abs(X - 0) otherwise race.sections.push(section)
+        # fails with "Assert_failure smartML/tools/value.ml:527:2"
+        epoch = abs(self.get_epoch() - 0)
+
+        # 1st section, results calculated immediately
+        chances = self._build_winning_probability(race)
+        run_order = self._arrange_racers(chances)
+        section = sp.local('section_ir', TSection.make(epoch=epoch))
+        section.value.positions = run_order
+        race.sections[0] = section.value
+        race.sections[1] = TSection.make(epoch=epoch)
 
     @sp.entry_point
     def next_section(self):
         sp.verify(sp.source == self.data.owner, 'Not an admin')
         sp.verify(self.data.races.contains(self.data.current_race), 'No races started')
         race = self.data.races[self.data.current_race]
-        sp.verify(race.winner < 0,  'No race is running')
-        self.data.temp = {}
-        chances = self._build_winning_probability()
-        self._arrange_horses(chances)
-        sp.if sp.len(race.section_results) > self.data.max_sections:
-            with sp.match_cons(race.section_results) as last_section:
-                with sp.match_cons(last_section.tail) as last_results:
-                    with sp.match_cons(last_results.head) as lr:
-                        w = lr.head
-                        race.winner = sp.to_int(w)
-            self._distribute_prize()
+        sp.verify(race.winner < 0, 'No race is running')
+
+        last_id = abs(sp.len(race.sections)-1)
+        section = race.sections[last_id]
+        section_timed_out = abs(sp.timestamp_from_utc_now() - section.started_at) >= self.data.section_time
+        epoch = abs(self.get_epoch() - 0)
+        sp.if (epoch - section.epoch >= 2) & section_timed_out:
+            self.data.temp = {}
+            chances = self._build_winning_probability(race)
+            run_order = self._arrange_racers(chances)
+            section.positions = run_order
+            sp.if sp.len(race.sections) <= self.data.max_sections:
+                race.sections[last_id+1] = TSection.make(epoch=epoch)
+            sp.else:
+                sp.for p in run_order:
+                    race.winner = sp.to_int(p)
+                self._distribute_prize()
 
     @sp.entry_point
     def place_bet(self, params):
         sp.verify(self.data.races.contains(self.data.current_race), 'There is no open race')
         race = self.data.races[self.data.current_race]
         sp.verify(race.winner < 0, 'There is no open race')
-        sp.verify(sp.len(race.section_results) < self.data.max_sections,
+        sp.verify(sp.len(race.sections) < self.data.max_sections,
                   'Last section is running, bets not accepted')
         sp.verify(~race.bets.contains(sp.source), 'You have already placed a bet')
         amount = params.amount*abs(100 - self.data.commission)/100
         bet = TBet.make(horse=params.horse, amount=amount)
         sp.verify(bet.amount > 0, 'Bet is too small')
         sp.verify(bet.horse < sp.len(race.horses), 'Horse number is invalid')
-        # uusd_contract.transfer(sp.self_address, bet.amount)
+
+        args = TTransfer.make(from_=sp.source, to_=sp.self_address, amount=params.amount)
+        c = sp.contract(TTransfer.get_type(), self.data.uusd, entry_point="transfer").open_some()
+        sp.transfer(args, sp.mutez(0), c)
+
         race.bets[sp.source] = bet
         race.total_bet += bet.amount
 
@@ -245,5 +296,7 @@ class HorseRace(sp.Contract):
     @sp.entry_point
     def withdraw(self):
         sp.verify(self.data.ledger.contains(sp.source), 'Nothing to withdraw')
-        # uusd_contract.transfer(sp.source, self.data.ledger[sp.source])
+        args = TTransfer.make(from_=sp.self_address, to_=sp.source, amount=self.data.ledger[sp.source])
+        c = sp.contract(TTransfer.get_type(), self.data.uusd, entry_point="transfer").open_some()
+        sp.transfer(args, sp.mutez(0), c)
         del self.data.ledger[sp.source]
