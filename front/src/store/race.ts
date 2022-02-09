@@ -26,7 +26,7 @@ function getFakeHorses() {
 }
 
 const initialRaceState: RaceState = {
-    isStarted: false,
+    isStarted: true,
     horses: getFakeHorses(),
     info: {
         lapNumber: 0,
