@@ -1,7 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import Horse from "../models/Horse";
 import RaceInfo from "../models/RaceInfo";
-import Player from "../models/Player";
 import Bet from "../models/Bet";
 
 interface RaceState {
@@ -9,7 +8,7 @@ interface RaceState {
     horses: Horse[];
     info: RaceInfo;
     currentLap: number;
-    connectedPlayer?: Player;
+    connectedWallet: string | null;
     totalLaps: number | null;
     currentBet: Bet;
 }
@@ -35,6 +34,7 @@ const initialRaceState: RaceState = {
     currentLap: 0,
     totalLaps: null,
     currentBet: {isProcessing: false, amount: 0, isSubmitted: false},
+    connectedWallet: null
 };
 
 
@@ -49,6 +49,9 @@ const raceSlice = createSlice({
 
         selectHorseToBetOn(state, action: PayloadAction<Horse>){
             state.currentBet.selectedHorse = action.payload;
+        },
+        setConnetedWallet(state, action:PayloadAction<string>){
+            state.connectedWallet = action.payload;
         }
     },
 });
