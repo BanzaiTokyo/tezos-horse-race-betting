@@ -2,7 +2,7 @@ import React from 'react';
 import {Badge, Nav, Navbar} from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import {ABOUT_PATH, RACE_PATH} from "../common/Constants";
-import WalletConnection from "./WalletConnection";
+import WalletConnection from "./connection/WalletConnection";
 
 
 const RaceMenu = () => {

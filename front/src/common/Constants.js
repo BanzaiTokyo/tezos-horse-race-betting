@@ -4,3 +4,8 @@
 export const HOME_PATH = '/';
 export const ABOUT_PATH = '/about';
 export const RACE_PATH = '/race';
+
+
+export const RACE_CONTRACT = 'KT1WMu4NoSQtDXB1q3smqQRWK64kfoVtgwys';
+export const NODE_URL = 'https://hangzhounet.api.tez.ie';
+// export const NODE_URL = 'https://tezos-node.prod.gke.papers.tech'

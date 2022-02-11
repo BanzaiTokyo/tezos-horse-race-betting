@@ -50,7 +50,7 @@ const raceSlice = createSlice({
         selectHorseToBetOn(state, action: PayloadAction<Horse>){
             state.currentBet.selectedHorse = action.payload;
         },
-        setConnetedWallet(state, action:PayloadAction<string>){
+        setConnetedWallet(state, action:PayloadAction<string | null>){
             state.connectedWallet = action.payload;
         }
     },
