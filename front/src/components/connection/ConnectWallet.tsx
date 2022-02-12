@@ -9,8 +9,6 @@ const ConnectButton = (): JSX.Element => {
     const dispatch = useDispatch();
 
     const connectWallet = async () => {
-        await connectToBeacon()
-
         console.log('connecting to wallet')
         getMyAddress().then(address => {
             console.log('---------------------- address: ', address);

@@ -2,6 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import Horse from "../models/Horse";
 import RaceInfo from "../models/RaceInfo";
 import Bet from "../models/Bet";
+import {ContractStorage} from "../services/BeaconService";
 
 interface RaceState {
     isStarted: boolean
@@ -47,11 +48,21 @@ const raceSlice = createSlice({
             state.horses = action.payload;
         },
 
-        selectHorseToBetOn(state, action: PayloadAction<Horse>){
+        setHorseToBetOn(state, action: PayloadAction<Horse>){
             state.currentBet.selectedHorse = action.payload;
         },
+
+        setCurrentBet(state, action: PayloadAction<number>){
+            state.currentBet.amount = action.payload;
+        },
+
         setConnetedWallet(state, action:PayloadAction<string | null>){
             state.connectedWallet = action.payload;
+        },
+
+        setContractStorage(state, action: PayloadAction<ContractStorage>) {
+            console.log('---------------- contract storage: ', action.payload)
+            return undefined;
         }
     },
 });

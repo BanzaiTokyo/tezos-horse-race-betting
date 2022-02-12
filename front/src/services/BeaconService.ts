@@ -19,8 +19,7 @@ const getBeaconInstance = async () => {
   if (!globalWallet) {
     // Create a new BeaconWallet instance. The options will be passed to the DAppClient constructor.
     const wallet = new BeaconWallet({
-      name: 'BanzaiTokyo Race',
-      preferredNetwork: NetworkType.HANGZHOUNET,
+      name: 'BanzaiTokyo Race'
     })
 
     // Setting the wallet as the wallet provider for Taquito.
@@ -52,23 +51,7 @@ export const disconnectFromBeacon = async () => {
   await wallet.clearActiveAccount()
 }
 
-export const withdraw = async (): Promise<string> => {
-  await connectToBeacon()
-
-  // Connect to a specific contract on the tezos blockchain.
-  // Make sure the contract is deployed on the network you requested permissions for.
-  const contract = await Tezos.wallet.at(RACE_CONTRACT)
-  // Call a method on a contract. In this case, we use the transfer entrypoint.
-  // Taquito will automatically check if the entrypoint exists and if we call it with the right parameters.
-  // In this case the parameters are [from, to, amount].
-  // This will prepare the contract call and send the request to the connected wallet.
-  const result = await contract.methods.withdraw('').send()
-
-  // As soon as the operation is broadcast, you will receive the operation hash
-  return result.opHash
-}
-
-export const readStateFromContract = async (): Promise<ContractStorage> => {
+export const readContractStorage = async (): Promise<ContractStorage> => {
   const contract = await Tezos.contract.at(RACE_CONTRACT);
 
   return await contract.storage();
@@ -106,6 +89,22 @@ export const openTezBlock = async () => {
 
 export const getPotAmount = async () => {
   return (await Tezos.tz.getBalance(RACE_CONTRACT)).shiftedBy(-6).toString()
+}
+
+export const placeBet = async (amount:number, horseId: number | undefined): Promise<string> => {
+  await connectToBeacon()
+
+  // Connect to a specific contract on the tezos blockchain.
+  // Make sure the contract is deployed on the network you requested permissions for.
+  const contract = await Tezos.wallet.at(RACE_CONTRACT)
+  // Call a method on a contract. In this case, we use the transfer entrypoint.
+  // Taquito will automatically check if the entrypoint exists and if we call it with the right parameters.
+  // In this case the parameters are [from, to, amount].
+  // This will prepare the contract call and send the request to the connected wallet.
+  const result = await contract.methods.place_bet(amount, horseId).send()
+
+  // As soon as the operation is broadcast, you will receive the operation hash
+  return result.opHash
 }
 
 export const getMyAddress = async () => {
