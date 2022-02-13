@@ -47,8 +47,6 @@ def test():
     scenario += oracle.inc_epoch().run()
     scenario += oracle.inc_epoch().run()
     scenario += c1.next_lap().run(source=owner, now=now.add_minutes(4))
-    scenario.h4("Race info")
-    scenario.show(c1.race_info())
     scenario.h4("Player balance")
     scenario.show(c1.balance_of(player1))
     #scenario += c1.withdraw().run(source=player1)

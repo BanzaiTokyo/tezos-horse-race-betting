@@ -1,31 +1,40 @@
 import smartpy as sp
 
 
-class TTransfer:
-    def get_type():
-        return sp.TRecord(
-            from_ = sp.TAddress,
-            txs = sp.TList(t = sp.TRecord(
-                                    to_ = sp.TAddress,
-                                    token_id = sp.TNat,
-                                    amount = sp.TString,
-                                )))
-    def string_of_nat(params):
-        c   = sp.map({x : str(x) for x in range(0, 10)})
-        x   = sp.local('x_son', params)
-        res = sp.local('res_son', [])
-        sp.if x.value == 0:
-            res.value.push('0')
-        sp.while 0 < x.value:
-            res.value.push(c[x.value % 10])
-            x.value //= 10
-        return sp.concat(res.value)
+UUSD_TOKEN_ID = 0
 
-    def make(from_, to_, amount):
-        amt_str = TTransfer.string_of_nat(amount)
-        return sp.set_type_expr(sp.record(
-            from_=from_,
-            txs=[sp.record(to_=to_, token_id=0, amount=amt_str)]), TTransfer.get_type())
+class Batch_transfer:
+    def get_transfer_type():
+        tx_type = sp.TRecord(to_=sp.TAddress, token_id=sp.TNat, amount=sp.TNat)
+        tx_type = tx_type.layout(("to_", ("token_id", "amount")))
+        transfer_type = sp.TRecord(from_=sp.TAddress, txs=sp.TList(tx_type)).layout(("from_", "txs"))
+        return transfer_type
+
+    def get_type():
+        return sp.TList(Batch_transfer.get_transfer_type())
+
+    def item(from_, txs):
+        v = sp.record(from_=from_, txs=txs)
+        return sp.set_type_expr(v, Batch_transfer.get_transfer_type())
+
+
+class Operator_param:
+    def get_operator_type():
+        t = sp.TRecord(owner=sp.TAddress, operator=sp.TAddress, token_id=sp.TNat)
+        t = t.layout(("owner", ("operator", "token_id")))
+        return t
+
+    def get_type():
+        return sp.TList(
+            sp.TVariant(
+                add_operator=Operator_param.get_operator_type(),
+                remove_operator=Operator_param.get_operator_type()
+            )
+        )
+
+    def make(owner, operator, token_id):
+        r = sp.record(owner=owner, operator=operator, token_id=token_id)
+        return sp.set_type_expr(r, Operator_param.get_operator_type())
 
 
 class TBet:
@@ -275,27 +284,45 @@ class HorseRace(sp.Contract):
         sp.verify(bet.amount > 0, 'Bet is too small')
         sp.verify(bet.horse < sp.len(race.horses), 'Horse number is invalid')
 
-        args = TTransfer.make(from_=sp.source, to_=sp.self_address, amount=params.amount)
-        c = sp.contract(TTransfer.get_type(), self.data.uusd, entry_point="transfer").open_some()
-        #sp.transfer(args, sp.mutez(0), c)   !!! disabled temporarily
+        args = [Batch_transfer.item(
+            from_ = sp.source,
+            txs = [
+                sp.record(to_ = sp.self_address, amount = params.amount, token_id = sp.nat(UUSD_TOKEN_ID))
+            ]
+        )]
+        c = sp.contract(Batch_transfer.get_type(), self.data.uusd, entry_point="transfer").open_some('transfer failed')
+        sp.transfer(args, sp.mutez(0), c)
 
         race.bets[sp.source] = bet
         race.bet_amount += bet.amount
 
-    @sp.offchain_view()
-    def race_info(self):
-        sp.verify(self.data.races.contains(self.data.current_race), 'No races started')
-        race = self.data.races[self.data.current_race]
-        sp.result(race)
+    @sp.entry_point
+    def withdraw(self):
+        sp.verify(self.data.ledger.contains(sp.source), 'Nothing to withdraw')
+        ops = [sp.variant("add_operator", Operator_param.make(
+                owner=sp.self_address, operator=sp.source, token_id=sp.nat(UUSD_TOKEN_ID))
+        )]
+        c = sp.contract(Operator_param.get_type(), self.data.uusd, entry_point="update_operators").open_some()
+        sp.transfer(ops, sp.mutez(0), c)
+
+        args = [Batch_transfer.item(
+            from_ = sp.self_address,
+            txs = [
+                sp.record(to_ = sp.source, amount = self.data.ledger[sp.source], token_id = sp.nat(UUSD_TOKEN_ID))
+            ]
+        )]
+        c = sp.contract(Batch_transfer.get_type(), self.data.uusd, entry_point="transfer").open_some('transfer failed')
+        sp.transfer(args, sp.mutez(0), c)
+
+        ops = [sp.variant("remove_operator", Operator_param.make(
+            owner=sp.self_address, operator=sp.source, token_id=sp.nat(UUSD_TOKEN_ID))
+        )]
+        c = sp.contract(Operator_param.get_type(), self.data.uusd, entry_point="update_operators").open_some()
+        sp.transfer(ops, sp.mutez(0), c)
+
+        del self.data.ledger[sp.source]
 
     @sp.onchain_view()
     def balance_of(self, address):
         sp.result(self.data.ledger.get(address, 0))
 
-    @sp.entry_point
-    def withdraw(self):
-        sp.verify(self.data.ledger.contains(sp.source), 'Nothing to withdraw')
-        args = TTransfer.make(from_=sp.self_address, to_=sp.source, amount=self.data.ledger[sp.source])
-        c = sp.contract(TTransfer.get_type(), self.data.uusd, entry_point="transfer").open_some()
-        sp.transfer(args, sp.mutez(0), c)
-        del self.data.ledger[sp.source]
