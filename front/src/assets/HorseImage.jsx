@@ -1,0 +1,102 @@
+import React from 'react';
+
+const HorseImage = ({horseColor}) => {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393.4 275.5">
+            <path id="shape"
+                  d="M390.9,72.4c-19.3-19.3-32-29.7-51.8-32.1.7-14.1,6.2-31.1,6.2-31.1-11.1,2.4-26.5,18-31.8,32.3a75.2,75.2,0,0,0-45.2,30.5,75,75,0,0,1-61.6,32.8H171.5A72.5,72.5,0,0,0,99,176.2V279h56.6V238.4a41.2,41.2,0,0,1,82.3,0c0,.5.1,40.6.1,40.6h56.5s-.2-78.1-.2-80.5c0-34.8,28-66.6,62.9-66.6,4.6,0,8.8,1.9,12.9,1.9a34.2,34.2,0,0,0,34.2-34.2C404.3,88.5,400.3,81.8,390.9,72.4Z"
+                  transform="translate(-13.4 -6)" style={{fill: horseColor}}/>
+
+            <path d="M99.3,279h56.5s-.1-21.3-.1-42L99.3,260.4Z" transform="translate(-13.4 -6)"
+                  style={{fill: "#201600"}}/>
+            <polygon points="125.6 270.4 125.6 241.4 134.6 237.7 134.6 270.4 125.6 270.4" style={{fill: "#fff"}}/>
+            <path d="M238,279h56.5s-.1-21.3-.1-42L238,260.4Z" transform="translate(-13.4 -6)"
+                  style={{fill: "#201600"}}/>
+            <polygon points="269.9 270.4 270.3 239.7 275.9 237.7 275.9 270.4 269.9 270.4" style={{fill: "#fff"}}/>
+            <polygon points="263.6 270.4 263.9 242.5 267.6 240.7 267.6 270.4 263.6 270.4" style={{fill: "#fff"}}/>
+            <circle cx="332.7" cy="70.2" r="13.5"
+                    style={{fill: "#fff", stroke: "5px #201600"}}/>
+            <circle cx="335.6" cy="72.7" r="3.3" style={{fill: "#201600"}}/>
+            <path d="M384.5,131.5c-4.5-5-6.4-6.9-12.2-9-3.5-1.2-7-10.5-7-10.5" transform="translate(-13.4 -6)"
+                  style={{
+                      fill: "none",
+                      stroke: "#201600",
+                      strokeLinecap: "round",
+                      strokeMiterlimit: 10,
+                      strokeWidth: "5px"
+                  }}/>
+            <path d="M273.5,72.8c-4.7-2.7-11.2-4-14-3.2s-6.7-2.5-10.2-1.2-12-.2-14.7,1.5"
+                  transform="translate(-13.4 -6)"
+                  style={{
+                      fill: "none",
+                      stroke: "#201600",
+                      strokeLinecap: "round",
+                      strokeMiterlimit: 10,
+                      strokeWidth: "5px"
+                  }}/>
+            <path d="M286.5,63.5c-7.2-1.2-5.5-8.2-13-8.7s-8.7,1.3-14,.3-5.7-6-10.2-6.5-7.7-.5-7.7-.5"
+                  transform="translate(-13.4 -6)"
+                  style={{
+                      fill: "none",
+                      stroke: "#201600",
+                      strokeLinecap: "round",
+                      strokeMiterlimit: 10,
+                      strokeWidth: "5px"
+                  }}/>
+            <path d="M298,52.3a53.7,53.7,0,0,0-8.5-8.2c-3.7-3-9.2-1.7-11.5-2.5s-8.5-1-9.7-3.2-3.2-.5-4.7-2.5"
+                  transform="translate(-13.4 -6)"
+                  style={{
+                      fill: "none",
+                      stroke: "#201600",
+                      strokeLinecap: "round",
+                      strokeMiterlimit: 10,
+                      strokeWidth: "5px"
+                  }}/>
+            <path d="M114.9,132.8c-10.7-.5-28.8-8-39-7.5-13.2.6-27,6-39.2,27.8-10.6,18.8-5.2,23.8-20.7,36.3"
+                  transform="translate(-13.4 -6)"
+                  style={{
+                      fill: "none",
+                      stroke: "#201600",
+                      strokeLinecap: "round",
+                      strokeMiterlimit: 10,
+                      strokeWidth: "5px"
+                  }}/>
+            <path d="M110.7,138.5c-20-.2-29.8-3.7-44.5,10.8s-19.7,28-35.2,37.3" transform="translate(-13.4 -6)"
+                  style={{
+                      fill: "none",
+                      stroke: "#201600",
+                      strokeLinecap: "round",
+                      strokeMiterlimit: 10,
+                      strokeWidth: "5px"
+                  }}/>
+            <path d="M107.7,144c-18.5-.5-29.7,15.1-33.8,28.3s-7.7,25.5-23.5,30.3c-17.8,5.4-29.2-3-29.2-3"
+                  transform="translate(-13.4 -6)"
+                  style={{
+                      fill: "none",
+                      stroke: "#201600",
+                      strokeLinecap: "round",
+                      strokeMiterlimit: 10,
+                      strokeWidth: "5px"
+                  }}/>
+            <path d="M311.7,51c0-16,20-38.7,33.7-41.7,0,0-7.7,23.7-6,38.3" transform="translate(-13.4 -6)"
+                  style={{
+                      fill: "none",
+                      stroke: "#201600",
+                      strokeLinecap: "round",
+                      strokeMiterlimit: 10,
+                      strokeWidth: "5px"
+                  }}/>
+            <path
+                d="M390.9,72.4c-19.3-19.3-32-29.7-51.8-32.1.7-14.1,6.2-31.1,6.2-31.1-11.1,2.4-26.5,18-31.8,32.3a75.2,75.2,0,0,0-45.2,30.5,75,75,0,0,1-61.6,32.8H171.5A72.5,72.5,0,0,0,99,176.2V279h56.6V238.4a41.2,41.2,0,0,1,82.3,0c0,.5.1,40.6.1,40.6h56.5s-.2-78.1-.2-80.5c0-34.8,28-66.6,62.9-66.6,4.6,0,8.8,1.9,12.9,1.9a34.2,34.2,0,0,0,34.2-34.2C404.3,88.5,400.3,81.8,390.9,72.4Z"
+                transform="translate(-13.4 -6)"
+                style={{
+                    fill: "none",
+                    stroke: "#201600",
+                    strokeLinecap: "round",
+                    strokeMiterlimit: 10,
+                    strokeWidth: "5px"
+                }}/>
+        </svg>);
+};
+
+export default HorseImage;

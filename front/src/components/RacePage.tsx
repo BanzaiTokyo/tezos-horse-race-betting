@@ -13,6 +13,7 @@ const RacePage = () => {
 
     useEffect(() => {
         readContractStorage().then(contractStorage => {
+            console.log('--------------------- unformatted storage: ', contractStorage)
             return contractStorage.races.get(contractStorage.current_race)
         }).then((race) => {
             dispatch(raceActions.setContractStorage(race))
@@ -29,10 +30,6 @@ const RacePage = () => {
                 <RaceInfo/>
             </Col>
             <Col md={6}><PlaceBet/></Col>
-        </Row>
-        <Row>
-            {/*/!* spacer *!/*/}
-            {/*<div style={{height: "30px"}}/>*/}
         </Row>
         <Row>
             <Col>

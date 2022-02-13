@@ -3,4 +3,5 @@ export default interface Horse {
     name: string;
     totalBidAmount?: number;
     numberOfBids?: number;
+    color: string;
 }
