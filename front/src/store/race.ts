@@ -46,7 +46,7 @@ const raceSlice = createSlice({
                 }
                 return horse
             })
-            let laps = [];
+            let laps:Lap[] = [];
             for (let i = 0; i < action.payload.laps.size - 2; i++) {
                 let lapSrc = action.payload.laps.get(i.toString())
                 let horseIdx = lapSrc.positions[0]
