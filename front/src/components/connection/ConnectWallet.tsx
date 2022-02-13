@@ -1,18 +1,16 @@
 import React from "react";
 import {Button} from "react-bootstrap";
-import {raceActions} from "../../store/race";
+import {playerActions} from "../../store/player";
 import {useDispatch} from "react-redux";
-import {connectToBeacon, getMyAddress} from "../../services/BeaconService";
+import {getMyAddress} from "../../services/BeaconService";
 
 
 const ConnectButton = (): JSX.Element => {
     const dispatch = useDispatch();
 
     const connectWallet = async () => {
-        console.log('connecting to wallet')
         getMyAddress().then(address => {
-            console.log('---------------------- address: ', address);
-            dispatch(raceActions.setConnetedWallet(address));
+            dispatch(playerActions.setConnetedWallet(address));
         }).catch(error => console.log(error));
     }
 

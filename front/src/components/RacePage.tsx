@@ -2,8 +2,7 @@ import {Col, Row} from "react-bootstrap";
 import RaceInfo from "./RaceInfo";
 import Track from "./Track";
 import PlaceBet from "./PlaceBet";
-import {useDispatch, useSelector} from "react-redux";
-import {RootState} from "../store";
+import {useDispatch} from "react-redux";
 import {useEffect} from "react";
 import {readContractStorage} from "../services/BeaconService";
 import {raceActions} from "../store/race";
@@ -20,8 +19,6 @@ const RacePage = () => {
         });
     }, []);
 
-    const isRaceStarted = useSelector((state: RootState) => state.race.isStarted);
-
 
     return (<div>
         {/* spacer */}
@@ -29,7 +26,7 @@ const RacePage = () => {
 
         <Row>
             <Col md={6}>
-                {isRaceStarted && <RaceInfo/>}
+                <RaceInfo/>
             </Col>
             <Col md={6}><PlaceBet/></Col>
         </Row>

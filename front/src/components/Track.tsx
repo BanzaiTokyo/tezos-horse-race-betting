@@ -7,7 +7,7 @@ const RaceInfo = () => {
         <Card>
             <Card.Body>
                 <Card.Text>
-                    The horses will race here
+                    <canvas></canvas>The horses will race here
                 </Card.Text>
             </Card.Body>
         </Card>
