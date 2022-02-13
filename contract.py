@@ -94,9 +94,8 @@ class HorseRace(sp.Contract):
             randomizer=randomizer,
             oracle=oracle,
             uusd=uusd,
-            epoch=0,
             entropy=sp.bytes('0xFF'),
-            last_random=0,
+            last_random=sp.nat(0),
             max_laps=4,
             num_horses=6,
             lap_time=60,  # in seconds
@@ -107,21 +106,19 @@ class HorseRace(sp.Contract):
             temp=sp.map(l={}, tkey=sp.TNat, tvalue=sp.TNat)
         )
 
-    @sp.entry_point
-    def set_last_random(self, params):
-        sp.set_type(params, sp.TNat)
-        sp.verify(sp.sender == self.data.randomizer,
-                  'Only Randomizer can call this entrypoint')
-        self.data.last_random = params
-
     def get_epoch(self):
-        self.data.epoch = sp.view("get_current_epoch", self.data.oracle, sp.unit, sp.TNat).open_some()
-        return self.data.epoch
+        return sp.view("get_current_epoch", self.data.oracle, sp.unit, sp.TNat).open_some()
 
-    def _random(self, max_):
-        self.data.entropy = sp.view("get_entropy", self.data.oracle, self.data.epoch, sp.TBytes).open_some()
-        arg =  sp.record(_from=0, _to=abs(max_-1), entropy=self.data.entropy, includeRandomizerEntropy=True)
-        rnum = sp.view("getRandomBetweenEntropyBytes", self.data.randomizer, arg, sp.TNat).open_some()
+    def get_entropy(self, epoch):
+        self.data.entropy = sp.view("get_entropy", self.data.oracle, epoch, sp.TBytes).open_some()
+        entropy_request = sp.record(
+            _from=sp.nat(0), _to=abs(sp.now - sp.timestamp(0)) // 2,
+            entropy=self.data.entropy, includeRandomizerEntropy=True
+        )
+        self.data.last_random = sp.view("getRandomBetweenEntropyBytes", self.data.randomizer, entropy_request, sp.TNat).open_some()
+
+    def _random(self, max_, seed):
+        rnum = abs(abs(abs(sp.now - sp.timestamp(0)) - self.data.last_random) - seed) % max_
         self.data.last_random = rnum
         return self.data.last_random
 
@@ -136,12 +133,12 @@ class HorseRace(sp.Contract):
             num_names.value = num_names.value + 1
         sp.verify(n <= num_names.value, 'not enough horses in the mews')
         sp.for i in sp.range(0, n):
-            random_bh.value = self._random(num_names.value)
+            random_bh.value = self._random(num_names.value, i)
             horse_name.value = available_names.value[random_bh.value]
             num_names.value = abs(num_names.value - 1)
             available_names.value[random_bh.value] = available_names.value[num_names.value]
             del available_names.value[num_names.value]
-            random_bh.value = self._random(3) + 1
+            random_bh.value = self._random(3, abs(n-i)) + 1
             horse = THorse.make(name=horse_name.value, weight=random_bh.value)
             result_bh.value.push(horse)
         return result_bh.value
@@ -191,7 +188,7 @@ class HorseRace(sp.Contract):
         sp.for i_for in sp.range(0, sp.len(race.horses)):
             chances_left.value = sp.len(chances.value.keys())
             self.data.temp[70+i_for] = chances_left.value
-            p = self._random(chances_left.value)
+            p = self._random(chances_left.value, i_for)
             participant = chances.value[p]
             self.data.temp[90+i_for] = participant
             run_order.value.push(participant)
@@ -223,14 +220,13 @@ class HorseRace(sp.Contract):
         sp.if self.data.races.contains(self.data.current_race):
             race = self.data.races[self.data.current_race]
             sp.verify(race.winner < 0, 'There is another race in progress')
+        epoch = abs(self.get_epoch() - 2)
+        self.get_entropy(epoch)
         horses = self._build_horses(self.data.num_horses)
         self.data.current_race = self.data.current_race + 1
         race_num = self.data.current_race
         self.data.races[race_num] = TRace.make(horses=horses)
         race = self.data.races[race_num]
-        # I compelled to do this nasty hack with abs(X - 0) otherwise race.laps.push(lap)
-        # fails with "Assert_failure smartML/tools/value.ml:527:2"
-        epoch = abs(self.get_epoch() - 0)
 
         # 1st lap, results calculated immediately
         chances = self._build_winning_probability(race)
@@ -247,12 +243,15 @@ class HorseRace(sp.Contract):
         race = self.data.races[self.data.current_race]
         sp.verify(race.winner < 0, 'No race is running')
 
-        last_id = abs(sp.len(race.laps)-1)
+        last_id = abs(sp.len(race.laps) - 1)
         lap = race.laps[last_id]
-        lap_timed_out = abs(sp.timestamp_from_utc_now() - lap.started_at) >= self.data.lap_time
+        lap_time = abs(sp.now - lap.started_at)
+        lap_timed_out = lap_time >= self.data.lap_time
+        # I compelled to do this nasty hack with abs(X - 0) otherwise "epoch" would be of type IntOrNat
         epoch = abs(self.get_epoch() - 0)
         sp.if (epoch - lap.epoch >= 2) & lap_timed_out:
             self.data.temp = {}
+            self.get_entropy(lap.epoch)
             chances = self._build_winning_probability(race)
             run_order = self._arrange_racers(chances)
             lap.positions = run_order
@@ -278,7 +277,7 @@ class HorseRace(sp.Contract):
 
         args = TTransfer.make(from_=sp.source, to_=sp.self_address, amount=params.amount)
         c = sp.contract(TTransfer.get_type(), self.data.uusd, entry_point="transfer").open_some()
-        sp.transfer(args, sp.mutez(0), c)
+        #sp.transfer(args, sp.mutez(0), c)   !!! disabled temporarily
 
         race.bets[sp.source] = bet
         race.bet_amount += bet.amount
