@@ -5,6 +5,7 @@ import {RootState} from "../store";
 import {playerActions} from "../store/player";
 import Horse from "../models/Horse";
 import {placeBet} from "../services/BeaconService";
+import {ensure} from "../common/helpers";
 
 const PlaceBet = () => {
     const dispatch = useDispatch();
@@ -13,13 +14,6 @@ const PlaceBet = () => {
     const currentBetAmount: number = useSelector((state: RootState) => state.player.currentBet.amount);
     const selectedHorse = useSelector((state: RootState) => state.player.currentBet.selectedHorse);
 
-
-    function ensure<T>(argument: T | undefined | null, message: string = 'This value was promised to be there.'): T {
-        if (argument === undefined || argument === null) {
-            throw new TypeError(message);
-        }
-        return argument;
-    }
 
     function onHorseSelected(event: any) {
 

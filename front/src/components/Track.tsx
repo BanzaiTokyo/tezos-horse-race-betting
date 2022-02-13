@@ -1,12 +1,16 @@
 import React from "react";
 import {Card, Col, ProgressBar, Row} from "react-bootstrap";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../store";
 import Horse from "../models/Horse";
 import HorseImage from '../assets/HorseImage';
 import TweenOne from 'rc-tween-one';
+import {playerActions} from "../store/player";
+import {ensure} from "../common/helpers";
 
 const RaceInfo = () => {
+
+    const dispatch = useDispatch();
 
     const horses: Horse[] = useSelector((state: RootState) => state.race.horses);
     const selectedHorseId = useSelector((state: RootState) => state.player.currentBet.selectedHorse?.id);
@@ -15,6 +19,13 @@ const RaceInfo = () => {
 
     function getRandomBetween(min: number, max: number) {
         return Math.random() * (max - min) + min;
+    }
+
+
+    function onHorseSelected(horseId: number) {
+
+        const horse: Horse = ensure<Horse>(horses.find(horse => horse.id === horseId));
+        dispatch(playerActions.setHorseToBetOn(horse));
     }
 
 
@@ -31,9 +42,17 @@ const RaceInfo = () => {
                     return (
                         <Row key={horse.id} className="align-items-center" style={rowStyle}>
                             <Col sm={2}>
-                                &nbsp;{horse.name}
+                                <span style={{color: horse.color}}
+                                      onClick={() => onHorseSelected(horse.id)}>
+                                    {horse.name}
+                                </span>
                                 <span
-                                    style={{height: "40px", width: "40px", display: 'inline-block', paddingTop: "-5px"}}>
+                                    style={{
+                                        height: "40px",
+                                        width: "40px",
+                                        display: 'inline-block',
+                                        paddingTop: "-5px"
+                                    }}>
                                     <TweenOne animation={{x: horseProgress * 15}}> <HorseImage
                                         horseColor={horse.color}/></TweenOne>
                                 </span>
