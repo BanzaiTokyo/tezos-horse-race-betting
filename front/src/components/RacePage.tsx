@@ -13,7 +13,11 @@ const RacePage = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        readContractStorage().then((contractStorage) => dispatch(raceActions.setContractStorage(contractStorage)));
+        readContractStorage().then(contractStorage => {
+            return contractStorage.races.get(contractStorage.current_race)
+        }).then((race) => {
+            dispatch(raceActions.setContractStorage(race))
+        });
     }, []);
 
     const isRaceStarted = useSelector((state: RootState) => state.race.isStarted);

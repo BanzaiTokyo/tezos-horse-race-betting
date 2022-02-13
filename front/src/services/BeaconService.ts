@@ -8,9 +8,7 @@ import {NetworkType} from "@airgap/beacon-sdk";
 const Tezos = new TezosToolkit(NODE_URL)
 
 export interface ContractStorage {
-  countdown_milliseconds: BigNumber
-  leader: string
-  leadership_start_timestamp: number
+  [key: string]: any | Promise<any>;
 }
 
 let globalWallet: BeaconWallet | undefined

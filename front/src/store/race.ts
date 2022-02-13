@@ -2,6 +2,7 @@ import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import Horse from "../models/Horse";
 import RaceInfo from "../models/RaceInfo";
 import Bet from "../models/Bet";
+import Lap from "../models/Lap";
 import {ContractStorage} from "../services/BeaconService";
 
 interface RaceState {
@@ -60,8 +61,36 @@ const raceSlice = createSlice({
             state.connectedWallet = action.payload;
         },
 
-        setContractStorage(state, action: PayloadAction<ContractStorage>) {
+        setContractStorage(state, action: PayloadAction<any>) {
+            const horses = action.payload.horses.map((h: any, i: number) => {
+                let horse: Horse = {
+                    id: i,
+                    name: h.name
+                }
+                return horse
+            })
+            let laps = [];
+            for (let i=0; i < action.payload.laps.size - 2; i++ ) {
+                let lapSrc = action.payload.laps.get(i.toString())
+                let horseIdx = lapSrc.positions[0]
+                let lap:Lap = {lapNumber: i, winner: horses[horseIdx]}
+                laps.push(lap)
+            }
+            let r: RaceState = {
+                isStarted: action.payload.laps.size > 2,
+                info: {
+                        lapNumber: action.payload.laps.size - 1,
+                        totalBidAmount: action.payload.bet_amount.toNumber(),
+                        laps: laps
+                      },
+                horses: horses,
+                currentLap: action.payload.laps.size - 1,
+                connectedWallet: null,
+                totalLaps: 5,
+                currentBet: action.payload.bet_amount.toNumber()
+            }
             console.log('---------------- contract storage: ', action.payload)
+            console.log('---------------- race state: ', r)
             return undefined;
         }
     },
