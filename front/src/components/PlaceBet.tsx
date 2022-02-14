@@ -6,6 +6,7 @@ import {playerActions} from "../store/player";
 import Horse from "../models/Horse";
 import {placeBet} from "../services/BeaconService";
 import {ensure} from "../common/helpers";
+import ConnectButton from "./connection/ConnectWallet";
 
 const PlaceBet = () => {
     const dispatch = useDispatch();
@@ -14,7 +15,7 @@ const PlaceBet = () => {
     const currentBetAmount: number = useSelector((state: RootState) => state.player.currentBet.amount);
     const selectedHorse = useSelector((state: RootState) => state.player.currentBet.selectedHorse);
     const userWallet = useSelector((state: RootState) => state.player.connectedWallet);
-
+    const isBetReady: boolean = selectedHorse! && currentBetAmount > 0;
 
     function onHorseSelected(event: any) {
 
@@ -72,11 +73,15 @@ const PlaceBet = () => {
                             })}
                         </Form.Select>
                     </Col>
-                    <Col sm={2}>
+                    <Col sm={3}>
                         <div className="d-grid">
-                            <Button variant="info" type="submit" disabled={!userWallet}>
-                                {userWallet ? 'Bet' : 'Connect wallet to bet'}
-                            </Button>
+                            {userWallet ? <Button variant="info" type="submit" disabled={!isBetReady}>
+                                    place bet
+                                </Button>
+                                :
+
+                                <ConnectButton/>}
+
                         </div>
                     </Col>
                 </Form.Group>

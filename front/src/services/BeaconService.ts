@@ -1,6 +1,5 @@
 import {BeaconWallet} from '@taquito/beacon-wallet'
 import {OpKind, TezosToolkit} from '@taquito/taquito'
-import {BigNumber} from "ethers"
 
 import {NODE_URL, RACE_CONTRACT, UUSD_CONTRACT} from '../common/Constants'
 import {NetworkType} from "@airgap/beacon-sdk";
@@ -122,7 +121,7 @@ export const placeBet = async (amount: number, horseId: number | undefined, user
             }
         ]))
         .withContractCall(raceContract.methods.place_bet({
-            amount: BigNumber.from(amount * 1e12),
+            amount: amount * 1e12,
             horse: horseId
         }))
         .withContractCall(uusdContract.methods.update_operators([

@@ -17,7 +17,7 @@ const ConnectButton = (): JSX.Element => {
     return (
         <div className="buttons">
             <Button variant={"outline-info"} onClick={connectWallet}>
-                Connect with wallet
+                Connect wallet
             </Button>
 
         </div>
