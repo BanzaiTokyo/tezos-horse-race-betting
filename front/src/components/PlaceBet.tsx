@@ -27,6 +27,7 @@ const PlaceBet = () => {
         event.preventDefault();
 
         placeBet(currentBetAmount, selectedHorse?.id, userWallet!).then(r => {
+         dispatch(playerActions.clearBet());
                 console.log('------------- the bet was successfully placed: ', r)
             }
         ).catch(e => console.log(e));
