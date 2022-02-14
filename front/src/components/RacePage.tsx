@@ -16,6 +16,8 @@ const RacePage = () => {
             dispatch(raceActions.setRaceId(contractStorage.current_race.toNumber()));
             return contractStorage.races.get(contractStorage.current_race)
         }).then((race) => {
+            //FIXME: do the conversion from Michelson objects here
+            // race.bet_amount = race.bet_amount.toNumber();
             dispatch(raceActions.setContractStorage(race));
         });
     }, []);

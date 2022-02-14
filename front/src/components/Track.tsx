@@ -8,9 +8,9 @@ import TweenOne from 'rc-tween-one';
 import {playerActions} from "../store/player";
 import {ensure} from "../common/helpers";
 
-const HORSE_ZERO_POSITION = 200;
-const TRACK_LENGTH = 800;
-const MARGIN = 30;
+const HORSE_ZERO_POSITION = 12.5;
+const TRACK_LENGTH = 50;
+const MARGIN = 1.8;
 const HORSE_EM = 2.5
 
 const RaceInfo = () => {
@@ -20,7 +20,6 @@ const RaceInfo = () => {
     const horses: Horse[] = useSelector((state: RootState) => state.race.horses);
     const selectedHorseId = useSelector((state: RootState) => state.player.currentBet.selectedHorse?.id);
     const isRaceStarted = useSelector((state: RootState) => state.race.isStarted);
-    const winningHorse = useSelector((state: RootState) => state.race.currentLap?.winner);
     const currentLap = useSelector((state: RootState) => state.race.currentLap);
 
      function getPositionForHorse(horse: Horse) {
@@ -44,9 +43,9 @@ const RaceInfo = () => {
             <Card.Body>
                 {horses.map(horse => {
                     const rowStyle = (selectedHorseId === horse.id) ? {
-                        height: "40px",
+                        height: `${HORSE_EM}em`,
                         border: "1px dotted"
-                    } : {height: "40px"};
+                    } : {height: `${HORSE_EM}em`};
 
                     const horseProgress = isRaceStarted ? getPositionForHorse(horse) : HORSE_ZERO_POSITION;
 
@@ -55,12 +54,12 @@ const RaceInfo = () => {
                             <Col sm={2}>
                                 <span
                                     style={{
-                                        height: "40px",
-                                        width: "2.5em",
+                                        height: `${HORSE_EM}em`,
+                                        width: `${HORSE_EM}em`,
                                         display: 'inline-block',
                                         paddingTop: "-5px",
                                     }}>
-                                <TweenOne animation={{x: horseProgress}}>
+                                <TweenOne animation={{x: `${horseProgress}em`}}>
                                     <HorseImage horseColor={horse.color}/>
                                 </TweenOne>
                                                                 </span>
