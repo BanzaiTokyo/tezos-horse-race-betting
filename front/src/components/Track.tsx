@@ -8,6 +8,10 @@ import TweenOne from 'rc-tween-one';
 import {playerActions} from "../store/player";
 import {ensure} from "../common/helpers";
 
+const HORSE_ZERO_POSITION = 200;
+const TRACK_LENGTH = 800;
+const MARGIN = 30;
+
 const RaceInfo = () => {
 
     const dispatch = useDispatch();
@@ -18,8 +22,13 @@ const RaceInfo = () => {
     const winningHorse = useSelector((state: RootState) => state.race.currentLap?.winner);
     const currentLap = useSelector((state: RootState) => state.race.currentLap);
 
-    function getRandomBetween(min: number, max: number) {
-        return Math.random() * (max - min) + min;
+     function getPositionForHorse(horse: Horse) {
+        const position: any = currentLap?.positions.findIndex((position) => position === horse.id);
+        const percentage = position / (currentLap?.positions.length ?? 1) * 100;
+        const min = TRACK_LENGTH / 100 * percentage - MARGIN;
+        const max = TRACK_LENGTH / 100 * percentage + MARGIN;
+        const result = Math.random() * (max - min) + min;
+        return HORSE_ZERO_POSITION + HORSE_ZERO_POSITION + Math.floor( result);
     }
 
 
@@ -27,10 +36,6 @@ const RaceInfo = () => {
 
         const horse: Horse = ensure<Horse>(horses.find(horse => horse.id === horseId));
         dispatch(playerActions.setHorseToBetOn(horse));
-    }
-
-    function calculateHorsePositionOnTrack(horse: Horse) {
-        return 0;
     }
 
     return (
@@ -42,11 +47,7 @@ const RaceInfo = () => {
                         border: "1px dotted"
                     } : {height: "40px"};
 
-
-                    let isHorseWinning = isRaceStarted && horse.id === winningHorse?.id;
-
-                    const horseProgress = false ? calculateHorsePositionOnTrack(horse) : 200;
-
+                    const horseProgress = isRaceStarted ? getPositionForHorse(horse) : HORSE_ZERO_POSITION;
 
                     return (
                         <Row key={horse.id} className="align-items-center" style={rowStyle}>

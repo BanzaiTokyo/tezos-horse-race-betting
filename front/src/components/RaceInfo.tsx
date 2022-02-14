@@ -6,7 +6,6 @@ import {RootState} from "../store";
 const RaceInfo = () => {
     const isRaceStarted: boolean = useSelector((state: RootState) => state.race.isStarted);
 
-    const totalLaps = 3;
     const currentLap = useSelector((state: RootState) => state.race.currentLap);
     const totalBidAmount = useSelector((state: RootState) => state.race.info.totalBidAmount);
     const raceNumber = useSelector((state: RootState) => state.race.info.raceNumber);
@@ -15,7 +14,7 @@ const RaceInfo = () => {
         (isRaceStarted) ?
             <ListGroup horizontal>
                 <ListGroup.Item>race: <strong>#{raceNumber}</strong></ListGroup.Item>
-                <ListGroup.Item>lap: <strong>{currentLap} / {totalLaps}</strong></ListGroup.Item>
+                <ListGroup.Item>lap: <strong>{(currentLap?.lapNumber ?? 0) + 1}</strong></ListGroup.Item>
                 <ListGroup.Item>bids: <strong>{totalBidAmount}</strong> uUSD</ListGroup.Item>
             </ListGroup> :
 

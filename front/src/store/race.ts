@@ -51,38 +51,25 @@ const raceSlice = createSlice({
             for (let i = 0; i < action.payload.laps.size; i++) {
                 let lapSrc = action.payload.laps.get(i.toString());
                 let horseIdx = lapSrc.positions[0];
-                let lap: Lap = {lapNumber: i, winner: horses[horseIdx], positions: lapSrc.positions};
-                console.log('--------------positions', lapSrc)
+                let lap: Lap = {lapNumber: i, winner: horses[horseIdx], positions: lapSrc.positions.map((position:any) => position.toNumber())};
                 laps.push(lap);
             }
 
             function transformToFrontBet(bet: any) {
-                const selectedHorse: Horse = ensure<Horse>(horses.find((horse:Horse) => horse.id === bet.horse.toNumber()));
-
+                const selectedHorse: Horse = ensure<Horse>(horses.find((horse: Horse) => horse.id === bet.horse.toNumber()));
                 return {amount: bet.amount.toNumber(), selectedHorse, player: bet.player.toString()};
             }
 
-
-            // FIXME: refactor in order not to overwrite info.raceNumber
             state.info = {
-                lapNumber: action.payload.laps.size - 1,
+                raceNumber: state.info.raceNumber,
+                lapNumber: laps.length - 1,
                 totalBidAmount: action.payload.bet_amount.toNumber(),
-                bets: action.payload.bets.map((bet:any) => transformToFrontBet(bet)), // fixme: check if the betsare read correctly
-                laps: laps
+                bets: action.payload.bets.map((bet: any) => transformToFrontBet(bet)),
+                laps
             };
 
-            // state.info.lapNumber = action.payload.laps.size - 1;
-            // state.info.totalBidAmount = action.payload.bet_amount.toNumber();
-            // state.info.bets = action.payload.bets.map((bet:any) => transformToFrontBet(bet));
-            // state.info.laps =  laps;
-
-
             state.horses = horses;
-
-            state.currentLap = action.payload.laps.get(action.payload.laps.size - 1);
-
-            console.log('---------------- laps: ', laps)
-            console.log('---------------- bets: ', action.payload.bets.map((bet:any) => transformToFrontBet(bet)))
+            state.currentLap = laps[(action.payload.laps.size - 1)];
             state.isStarted = laps.length > 0;
             state.isContractStorageLoaded = true;
         }

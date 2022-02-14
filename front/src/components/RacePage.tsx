@@ -13,10 +13,9 @@ const RacePage = () => {
 
     useEffect(() => {
         readContractStorage().then(contractStorage => {
-            dispatch(raceActions.setRaceId(contractStorage.current_race));
+            dispatch(raceActions.setRaceId(contractStorage.current_race.toNumber()));
             return contractStorage.races.get(contractStorage.current_race)
         }).then((race) => {
-            console.log('--------------------- unformatted race: ', race)
             dispatch(raceActions.setContractStorage(race));
         });
     }, []);
