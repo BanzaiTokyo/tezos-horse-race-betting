@@ -8,9 +8,9 @@ import TweenOne from 'rc-tween-one';
 import {playerActions} from "../store/player";
 import {ensure} from "../common/helpers";
 
-const HORSE_ZERO_POSITION = 12.5;
-const TRACK_LENGTH = 50;
-const MARGIN = 1.8;
+const HORSE_ZERO_POSITION = 200;
+const TRACK_LENGTH = 800;
+const MARGIN = 30;
 const HORSE_EM = 2.5
 
 const RaceInfo = () => {
@@ -59,7 +59,7 @@ const RaceInfo = () => {
                                         display: 'inline-block',
                                         paddingTop: "-5px",
                                     }}>
-                                <TweenOne animation={{x: `${horseProgress}em`}}>
+                                <TweenOne animation={{x: `${horseProgress / 16}em`}}>
                                     <HorseImage horseColor={horse.color}/>
                                 </TweenOne>
                                                                 </span>
