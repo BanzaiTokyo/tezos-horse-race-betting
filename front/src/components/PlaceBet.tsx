@@ -63,6 +63,7 @@ const PlaceBet = () => {
                             name={"horse"}
                             aria-label="Default select example"
                             onChange={onHorseSelected}
+                            value={selectedHorse?.id}
                         >
 
                             {horses.map((horse) => {
