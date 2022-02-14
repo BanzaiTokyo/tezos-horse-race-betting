@@ -11,6 +11,7 @@ import {ensure} from "../common/helpers";
 const HORSE_ZERO_POSITION = 200;
 const TRACK_LENGTH = 800;
 const MARGIN = 30;
+const HORSE_EM = 2.5
 
 const RaceInfo = () => {
 
@@ -55,7 +56,7 @@ const RaceInfo = () => {
                                 <span
                                     style={{
                                         height: "40px",
-                                        width: "40px",
+                                        width: "2.5em",
                                         display: 'inline-block',
                                         paddingTop: "-5px",
                                     }}>

@@ -13,6 +13,7 @@ const PlaceBet = () => {
     const horses = useSelector((state: RootState) => state.race.horses);
     const currentBetAmount: number = useSelector((state: RootState) => state.player.currentBet.amount);
     const selectedHorse = useSelector((state: RootState) => state.player.currentBet.selectedHorse);
+    const userWallet = useSelector((state: RootState) => state.player.connectedWallet);
 
 
     function onHorseSelected(event: any) {
@@ -24,7 +25,7 @@ const PlaceBet = () => {
     const onPlaceBetClicked = async (event: any) => {
         event.preventDefault();
 
-        placeBet(currentBetAmount, selectedHorse?.id).then(r => {
+        placeBet(currentBetAmount, selectedHorse?.id, userWallet!).then(r => {
                 console.log('------------- the bet was successfully placed: ', r)
             }
         ).catch(e => console.log(e));
@@ -73,8 +74,8 @@ const PlaceBet = () => {
                     </Col>
                     <Col sm={2}>
                         <div className="d-grid">
-                            <Button variant="info" type="submit">
-                                Bet
+                            <Button variant="info" type="submit" disabled={!userWallet}>
+                                {userWallet ? 'Bet' : 'Connect wallet to bet'}
                             </Button>
                         </div>
                     </Col>

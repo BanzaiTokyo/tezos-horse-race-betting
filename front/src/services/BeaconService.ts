@@ -1,7 +1,8 @@
 import {BeaconWallet} from '@taquito/beacon-wallet'
 import {OpKind, TezosToolkit} from '@taquito/taquito'
+import {BigNumber} from "ethers"
 
-import {NODE_URL, RACE_CONTRACT} from '../common/Constants'
+import {NODE_URL, RACE_CONTRACT, UUSD_CONTRACT} from '../common/Constants'
 import {NetworkType} from "@airgap/beacon-sdk";
 
 const Tezos = new TezosToolkit(NODE_URL)
@@ -88,7 +89,7 @@ export const getPotAmount = async () => {
     return (await Tezos.tz.getBalance(RACE_CONTRACT)).shiftedBy(-6).toString()
 }
 
-export const placeBet = async (amount: number, horseId: number | undefined): Promise<string> => {
+export const _placeBet = async (amount: number, horseId: number | undefined): Promise<string> => {
     await connectToBeacon()
 
     // Connect to a specific contract on the tezos blockchain.
@@ -102,6 +103,39 @@ export const placeBet = async (amount: number, horseId: number | undefined): Pro
 
     // As soon as the operation is broadcast, you will receive the operation hash
     return result.opHash
+}
+
+export const placeBet = async (amount: number, horseId: number | undefined, userAddress:string): Promise<any> => {
+    console.log('amount: ', amount, ', horse id: ', horseId, ', wallet: ', userAddress)
+    await connectToBeacon()
+    const Tezos = await new TezosToolkit(NODE_URL);
+    const raceContract = await Tezos.wallet.at(RACE_CONTRACT);
+    const uusdContract = await Tezos.wallet.at(UUSD_CONTRACT);
+    const batchOp = await Tezos.wallet.batch()
+        .withContractCall(uusdContract.methods.update_operators([
+            {
+                add_operator: {
+                    owner: userAddress,
+                    operator: RACE_CONTRACT,
+                    token_id: 0
+                }
+            }
+        ]))
+        .withContractCall(raceContract.methods.place_bet({
+            amount: BigNumber.from(amount * 1e12),
+            horse: horseId
+        }))
+        .withContractCall(uusdContract.methods.update_operators([
+            {
+                remove_operator: {
+                    owner: userAddress,
+                    operator: RACE_CONTRACT,
+                    token_id: 0
+                }
+            }
+        ]))
+        .send();
+    return await batchOp.confirmation();
 }
 
 export const getMyAddress = async () => {
