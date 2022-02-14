@@ -6,7 +6,7 @@ import {RootState} from "../store";
 const RaceInfo = () => {
     const isRaceStarted: boolean = useSelector((state: RootState) => state.race.isStarted);
 
-    const totalLaps = useSelector((state: RootState) => state.race.totalLaps);
+    const totalLaps = 3;
     const currentLap = useSelector((state: RootState) => state.race.currentLap);
     const totalBidAmount = useSelector((state: RootState) => state.race.info.totalBidAmount);
     const raceNumber = useSelector((state: RootState) => state.race.info.raceNumber);

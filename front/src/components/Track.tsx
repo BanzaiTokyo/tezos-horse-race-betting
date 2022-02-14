@@ -16,6 +16,7 @@ const RaceInfo = () => {
     const selectedHorseId = useSelector((state: RootState) => state.player.currentBet.selectedHorse?.id);
     const isRaceStarted = useSelector((state: RootState) => state.race.isStarted);
     const winningHorse = useSelector((state: RootState) => state.race.currentLap?.winner);
+    const currentLap = useSelector((state: RootState) => state.race.currentLap);
 
     function getRandomBetween(min: number, max: number) {
         return Math.random() * (max - min) + min;
@@ -28,6 +29,9 @@ const RaceInfo = () => {
         dispatch(playerActions.setHorseToBetOn(horse));
     }
 
+    function calculateHorsePositionOnTrack(horse: Horse) {
+        return 0;
+    }
 
     return (
         <Card>
@@ -37,25 +41,33 @@ const RaceInfo = () => {
                         height: "40px",
                         border: "1px dotted"
                     } : {height: "40px"};
+
+
                     let isHorseWinning = isRaceStarted && horse.id === winningHorse?.id;
-                    const horseProgress = isHorseWinning ? getRandomBetween(70, 80) : getRandomBetween(10, 50);
+
+                    const horseProgress = false ? calculateHorsePositionOnTrack(horse) : 200;
+
+
                     return (
                         <Row key={horse.id} className="align-items-center" style={rowStyle}>
                             <Col sm={2}>
-                                <span style={{color: horse.color}}
-                                      onClick={() => onHorseSelected(horse.id)}>
-                                    {horse.name}
-                                </span>
                                 <span
                                     style={{
                                         height: "40px",
                                         width: "40px",
                                         display: 'inline-block',
-                                        paddingTop: "-5px"
+                                        paddingTop: "-5px",
                                     }}>
-                                    <TweenOne animation={{x: horseProgress * 15}}> <HorseImage
-                                        horseColor={horse.color}/></TweenOne>
+                                <TweenOne animation={{x: horseProgress}}>
+                                    <HorseImage horseColor={horse.color}/>
+                                </TweenOne>
+                                                                </span>
+
+                                <span style={{color: horse.color}}
+                                      onClick={() => onHorseSelected(horse.id)}>
+                                    {horse.name}
                                 </span>
+
                             </Col>
                             <Col sm={10}><ProgressBar striped variant="success" now={0} animated/></Col>
                         </Row>)
