@@ -1,42 +1,29 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import Horse from "../models/Horse";
 import RaceInfo from "../models/RaceInfo";
-import Bet from "../models/Bet";
 import Lap from "../models/Lap";
-import {ContractStorage} from "../services/BeaconService";
 
 interface RaceState {
+    isContractStorageLoaded: boolean,
     isStarted: boolean
     horses: Horse[];
     info: RaceInfo;
-    currentLap: number;
-    connectedWallet: string | null;
+    currentLap: Lap | null;
     totalLaps: number | null;
-    currentBet: Bet;
 }
 
-function getFakeHorses() {
-    const fakeInitialHorses: Horse[] = [];
-    fakeInitialHorses.push({id: 0, name: "Secretariat", numberOfBids: 0, totalBidAmount: 0})
-    fakeInitialHorses.push({id: 1, name: "Noble Fair", numberOfBids: 0, totalBidAmount: 0})
-    fakeInitialHorses.push({id: 2, name: "Desert Orchid", numberOfBids: 0, totalBidAmount: 0})
-    fakeInitialHorses.push({id: 3, name: "American Pharaoh", numberOfBids: 0, totalBidAmount: 0})
-    fakeInitialHorses.push({id: 4, name: "Desert Orchid", numberOfBids: 0, totalBidAmount: 0})
-    fakeInitialHorses.push({id: 5, name: "Seattle Slew", numberOfBids: 0, totalBidAmount: 0})
-    return fakeInitialHorses;
-}
 
 const initialRaceState: RaceState = {
-    isStarted: true,
-    horses: getFakeHorses(),
+    isContractStorageLoaded: false,
+    isStarted: false,
+    horses: [],
     info: {
         lapNumber: 0,
-        totalBidAmount: 0
+        totalBidAmount: 0,
+        bets: []
     },
-    currentLap: 0,
+    currentLap: null,
     totalLaps: null,
-    currentBet: {isProcessing: false, amount: 0, isSubmitted: false},
-    connectedWallet: null
 };
 
 
@@ -49,49 +36,40 @@ const raceSlice = createSlice({
             state.horses = action.payload;
         },
 
-        setHorseToBetOn(state, action: PayloadAction<Horse>){
-            state.currentBet.selectedHorse = action.payload;
-        },
-
-        setCurrentBet(state, action: PayloadAction<number>){
-            state.currentBet.amount = action.payload;
-        },
-
-        setConnetedWallet(state, action:PayloadAction<string | null>){
-            state.connectedWallet = action.payload;
-        },
-
         setContractStorage(state, action: PayloadAction<any>) {
+            console.log('--------- bets: ', action.payload.bets)
             const horses = action.payload.horses.map((h: any, i: number) => {
                 let horse: Horse = {
                     id: i,
-                    name: h.name
+                    name: h.name,
+                    color: h.color
                 }
                 return horse
             })
-            let laps = [];
-            for (let i=0; i < action.payload.laps.size - 2; i++ ) {
+            let laps:Lap[] = [];
+            for (let i = 0; i < action.payload.laps.size - 2; i++) {
                 let lapSrc = action.payload.laps.get(i.toString())
                 let horseIdx = lapSrc.positions[0]
-                let lap:Lap = {lapNumber: i, winner: horses[horseIdx]}
+                let lap: Lap = {lapNumber: i, winner: horses[horseIdx]}
                 laps.push(lap)
             }
-            let r: RaceState = {
-                isStarted: action.payload.laps.size > 2,
-                info: {
-                        lapNumber: action.payload.laps.size - 1,
-                        totalBidAmount: action.payload.bet_amount.toNumber(),
-                        laps: laps
-                      },
-                horses: horses,
-                currentLap: action.payload.laps.size - 1,
-                connectedWallet: null,
-                totalLaps: 5,
-                currentBet: action.payload.bet_amount.toNumber()
-            }
+            // state.isStarted = action.payload.laps.size > 2;
+            state.info = {
+                lapNumber: action.payload.laps.size - 1,
+                totalBidAmount: action.payload.bet_amount.toNumber(),
+                bets: action.payload.bets, // fixme: check if the betsare read correctly
+                laps: laps
+            };
+            state.horses = horses;
+            state.totalLaps = 5;
+
+            let currentLap = action.payload.laps.get(action.payload.laps.size - 1);
+            state.currentLap = currentLap;
+
             console.log('---------------- contract storage: ', action.payload)
-            console.log('---------------- race state: ', r)
-            return undefined;
+            console.log('---------------- bets: ', action.payload.bets)
+
+            state.isContractStorageLoaded = true;
         }
     },
 });

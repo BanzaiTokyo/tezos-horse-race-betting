@@ -2,29 +2,23 @@ import React, {ChangeEvent} from "react";
 import {Button, Col, Form, InputGroup, Row} from "react-bootstrap";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../store";
-import {raceActions} from "../store/race";
+import {playerActions} from "../store/player";
 import Horse from "../models/Horse";
 import {placeBet} from "../services/BeaconService";
+import {ensure} from "../common/helpers";
 
 const PlaceBet = () => {
     const dispatch = useDispatch();
 
     const horses = useSelector((state: RootState) => state.race.horses);
-    const currentBetAmount: number = useSelector((state: RootState) => state.race.currentBet.amount);
-    const selectedHorse = useSelector((state: RootState) => state.race.currentBet.selectedHorse);
+    const currentBetAmount: number = useSelector((state: RootState) => state.player.currentBet.amount);
+    const selectedHorse = useSelector((state: RootState) => state.player.currentBet.selectedHorse);
 
-
-    function ensure<T>(argument: T | undefined | null, message: string = 'This value was promised to be there.'): T {
-        if (argument === undefined || argument === null) {
-            throw new TypeError(message);
-        }
-        return argument;
-    }
 
     function onHorseSelected(event: any) {
 
         const horse: Horse = ensure<Horse>(horses.find(horse => horse.id === parseInt(event.target.value)));
-        dispatch(raceActions.setHorseToBetOn(horse));
+        dispatch(playerActions.setHorseToBetOn(horse));
     }
 
     const onPlaceBetClicked = async (event: any) => {
@@ -38,7 +32,7 @@ const PlaceBet = () => {
     }
 
     const onAmountChanged = (event: ChangeEvent<HTMLSelectElement>) => {
-        dispatch(raceActions.setCurrentBet(event.target.value ? parseFloat(event.target.value) : 0));
+        dispatch(playerActions.setCurrentBet(event.target.value ? parseFloat(event.target.value) : 0));
         return;
     }
 
@@ -68,8 +62,8 @@ const PlaceBet = () => {
                         <Form.Select
                             name={"horse"}
                             aria-label="Default select example"
-                            placeholder="Choose your horse"
                             onChange={onHorseSelected}
+                            value={selectedHorse?.id}
                         >
 
                             {horses.map((horse) => {

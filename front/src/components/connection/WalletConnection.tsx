@@ -6,7 +6,7 @@ import DisconnectButton from "./DisconnectWallet";
 
 
 const WalletConnection = () => {
-    const connectedWallet = useSelector((state: RootState) => state.race.connectedWallet);
+    const connectedWallet = useSelector((state: RootState) => state.player.connectedWallet);
 
 
     return (!connectedWallet ?
