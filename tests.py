@@ -36,8 +36,6 @@ def test():
     scenario.verify(sp.len(race.laps) == 1)
     for h in range(1, 6):
         scenario += c1.place_bet(horse=h, amount=100).run(source=player1)
-    scenario.h4("Test bets are not accepted too late")
-    scenario += c1.place_bet(horse=0, amount=100).run(source=player1, now=now.add_seconds(c1.data.bet_time-0), valid=False)
     for l in range(1, 5):
         scenario.h4(f"Go to lap {l}")
         scenario += oracle.inc_epoch().run()

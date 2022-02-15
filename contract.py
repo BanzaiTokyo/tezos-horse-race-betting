@@ -80,6 +80,7 @@ class TRace:
             horses = sp.TList(THorse.get_type()),
             bets = sp.TList(TBet.get_type()),
             bet_amount = sp.TNat,
+            last_bet_epoch = sp.TNat,
             laps = sp.TMap(sp.TInt, TLap.get_type()),
             winner = sp.TInt
         )
@@ -89,6 +90,7 @@ class TRace:
             horses = horses,
             bets = [],
             bet_amount = 0,
+            last_bet_epoch = 0,
             laps ={},
             winner = -1,
         ), TRace.get_type())
@@ -123,7 +125,6 @@ class HorseRace(sp.Contract):
             entropy=sp.bytes('0xFF'),
             last_random=sp.nat(0),
             num_horses=6,
-            bet_time=60,  # time since the lap start when bets are accepted, in seconds
             new_lap_probability=60,  # per cent, e.g. 60%
             commission=10,  # (in per cent, e.g. 5%)
             ledger=sp.big_map({}, tkey=sp.TAddress, tvalue=sp.TNat),
@@ -260,7 +261,7 @@ class HorseRace(sp.Contract):
         sp.if self.data.races.contains(self.data.current_race):
             race = self.data.races[self.data.current_race]
             sp.verify(race.winner < 0, 'There is another race in progress')
-        epoch = abs(self.get_epoch() - 2)
+        epoch = abs(self.get_epoch() - 1)
         self.get_entropy(epoch)
         self.make_race()
 
@@ -274,11 +275,9 @@ class HorseRace(sp.Contract):
         last_id = sp.len(race.laps) - 1
         sp.verify(last_id >= 0, 'Race is not started')
         lap = race.laps[last_id]
-        lap_time = abs(sp.now - lap.started_at)
-        lap_timed_out = lap_time >= self.data.bet_time
         # I compelled to do this nasty hack with abs(X - 0) otherwise "epoch" would be of type IntOrNat
         epoch = abs(self.get_epoch() - 0)
-        sp.if (epoch - lap.epoch >= 2) & lap_timed_out:
+        sp.if epoch - race.last_bet_epoch >= 2:
             self.data.temp = {}
             self.get_entropy(lap.epoch)
             sp.if self._race_continues(last_id):
@@ -299,14 +298,10 @@ class HorseRace(sp.Contract):
         sp.verify(amount > 0, 'Bet is too small')
         sp.verify(params.horse < sp.len(race.horses), 'Horse number is invalid')
 
+        epoch = abs(self.get_epoch() - 0)
         last_id = sp.len(race.laps) - 1
         sp.if last_id < 0:
-            epoch = abs(self.get_epoch() - 0)
             race.laps[0] = self.make_lap(race, epoch)
-        sp.else:
-            lap = race.laps[last_id]
-            lap_time = abs(sp.now - lap.started_at)
-            sp.verify(lap_time < self.data.bet_time, 'Bets are not accepted, please wait for the next lap')
 
         args = [Batch_transfer.item(
             from_ = sp.source,
@@ -317,6 +312,7 @@ class HorseRace(sp.Contract):
         c = sp.contract(Batch_transfer.get_type(), self.data.uusd, entry_point="transfer").open_some('transfer failed')
         sp.transfer(args, sp.mutez(0), c)
 
+        race.last_bet_epoch = epoch
         race.bets.push(TBet.make(player=sp.source, horse=params.horse, amount=amount))
         race.bet_amount += amount
 
