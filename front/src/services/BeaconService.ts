@@ -104,7 +104,7 @@ export const _placeBet = async (amount: number, horseId: number | undefined): Pr
     return result.opHash
 }
 
-export const placeBet = async (amount: number, horseId: number | undefined, userAddress:string): Promise<any> => {
+export const placeBet = async (amount: number, horseId: number | undefined, userAddress: string): Promise<any> => {
     console.log('amount: ', amount, ', horse id: ', horseId, ', wallet: ', userAddress)
     await connectToBeacon()
     const raceContract = await Tezos.wallet.at(RACE_CONTRACT);
@@ -150,4 +150,14 @@ export const getMyAddress = async () => {
     console.log('------------- wallet: ', wallet)
 
     return activeAccount?.address ?? ''
+}
+
+export const getUUSDBalance = async (wallet: string) => {
+    const uusdContract = await Tezos.wallet.at(UUSD_CONTRACT);
+    const uUSDStorage: ContractStorage = await uusdContract.storage();
+    console.log('uUSD storage: ', uUSDStorage)
+    return uUSDStorage.ledger.get(wallet).then((balance: any) => balance.toNumber()).catch((e: any) => {
+        console.log(e);
+        return 0;
+    })
 }

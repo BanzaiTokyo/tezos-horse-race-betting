@@ -15,6 +15,7 @@ const PlaceBet = () => {
     const currentBetAmount: number = useSelector((state: RootState) => state.player.currentBet.amount);
     const selectedHorse = useSelector((state: RootState) => state.player.currentBet.selectedHorse);
     const userWallet = useSelector((state: RootState) => state.player.connectedWallet);
+    const balance = useSelector((state: RootState) => state.player.balance);
     const isBetReady: boolean = selectedHorse! && currentBetAmount > 0;
 
     function onHorseSelected(event: any) {
@@ -50,6 +51,7 @@ const PlaceBet = () => {
                                 type="number"
                                 min="0"
                                 step="0.1"
+                                max={balance}
                                 name={"amount"}
                                 onChange={(e) => onAmountChanged(e as any)}
                                 value={currentBetAmount}
