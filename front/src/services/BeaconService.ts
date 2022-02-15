@@ -107,7 +107,6 @@ export const _placeBet = async (amount: number, horseId: number | undefined): Pr
 export const placeBet = async (amount: number, horseId: number | undefined, userAddress:string): Promise<any> => {
     console.log('amount: ', amount, ', horse id: ', horseId, ', wallet: ', userAddress)
     await connectToBeacon()
-    const Tezos = await new TezosToolkit(NODE_URL);
     const raceContract = await Tezos.wallet.at(RACE_CONTRACT);
     const uusdContract = await Tezos.wallet.at(UUSD_CONTRACT);
     const batchOp = await Tezos.wallet.batch()
@@ -120,10 +119,10 @@ export const placeBet = async (amount: number, horseId: number | undefined, user
                 }
             }
         ]))
-        .withContractCall(raceContract.methods.place_bet({
-            amount: amount * 1e12,
-            horse: horseId
-        }))
+        .withContractCall(raceContract.methods.place_bet(
+            amount * 1e12,
+            horseId
+        ))
         .withContractCall(uusdContract.methods.update_operators([
             {
                 remove_operator: {

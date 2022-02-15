@@ -10,6 +10,9 @@ const store = configureStore({
         stats: statsReducer,
         player: playerReducer,
     },
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({
+        serializableCheck: false
+    }),
 });
 
 export default store;
