@@ -15,7 +15,7 @@ const RaceInfo = () => {
             <ListGroup horizontal>
                 <ListGroup.Item>race: <strong>#{raceNumber}</strong></ListGroup.Item>
                 <ListGroup.Item>lap: <strong>{(currentLap?.lapNumber ?? 0) + 1}</strong></ListGroup.Item>
-                <ListGroup.Item>bids: <strong>{totalBidAmount/1E12}</strong> uUSD</ListGroup.Item>
+                <ListGroup.Item>bids: <strong>{totalBidAmount}</strong> uUSD</ListGroup.Item>
             </ListGroup> :
 
 
