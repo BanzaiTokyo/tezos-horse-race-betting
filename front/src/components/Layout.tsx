@@ -19,6 +19,9 @@ const Layout = () => {
 
                 <Row>
                     <Col>
+                        {/* spacer */}
+                        <div style={{height: "100px"}}/>
+
                         {/*--------- main content*/}
                         <Routes/>
                     </Col>

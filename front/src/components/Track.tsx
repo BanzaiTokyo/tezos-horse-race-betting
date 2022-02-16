@@ -1,5 +1,5 @@
 import React from "react";
-import {Card, Col, ProgressBar, Row} from "react-bootstrap";
+import {Card, Col, Container, ProgressBar, Row, Spinner} from "react-bootstrap";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../store";
 import Horse from "../models/Horse";
@@ -23,6 +23,7 @@ const RaceInfo = () => {
     const isRaceStarted = useSelector((state: RootState) => state.race.isStarted);
     const bets = useSelector((state: RootState) => state.race.info.bets);
     const currentLap = useSelector((state: RootState) => state.race.currentLap);
+    const isContractStorageLoaded = useSelector((state: RootState) => state.race.isContractStorageLoaded);
 
     function getPositionForHorse(horse: Horse) {
         const position: any = currentLap?.positions.findIndex((position) => position === horse.id);
@@ -40,30 +41,41 @@ const RaceInfo = () => {
         dispatch(playerActions.setHorseToBetOn(horse));
     }
 
+    function getLoader() {
+        return (
+            <Container className="text-center justify-content-center align-self-center">
+                <div style={{height: "100px"}}/>
+                <Spinner animation="border" variant="info"/>
+                <div style={{height: "100px"}}/>
+            </Container>
+        );
+    }
+
     return (
         <Card>
             <Card.Body>
-                {horses.map(horse => {
-                    const rowStyle = (selectedHorseId === horse.id) ? {
-                        height: `${HORSE_EM}em`,
-                        border: "1px dotted",
-                    } : {height: `${HORSE_EM}em`};
+                {isContractStorageLoaded ?
+                    horses.map(horse => {
+                        const rowStyle = (selectedHorseId === horse.id) ? {
+                            height: `${HORSE_EM}em`,
+                            border: "1px dotted",
+                        } : {height: `${HORSE_EM}em`};
 
-                    const horseProgress = isRaceStarted ? getPositionForHorse(horse) : HORSE_ZERO_POSITION;
-                    const horseBets: number = bets.filter((bet: Bet) => bet?.selectedHorse?.id === horse.id).reduce((acc, bet) => acc + bet.amount, 0);
+                        const horseProgress = isRaceStarted ? getPositionForHorse(horse) : HORSE_ZERO_POSITION;
+                        const horseBets: number = bets.filter((bet: Bet) => bet?.selectedHorse?.id === horse.id).reduce((acc, bet) => acc + bet.amount, 0);
 
-                    return (
-                        <Row key={horse.id} className="align-items-center" style={rowStyle}>
-                            <Col sm={3} style={{marginRight: '-50px'}}>
-                                <Row>
-                                    <Col sm={6}>
+                        return (
+                            <Row key={horse.id} className="align-items-center" style={rowStyle}>
+                                <Col sm={3} style={{marginRight: '-50px'}}>
+                                    <Row>
+                                        <Col sm={6}>
                                         <span style={{color: horse.color}}
                                               onClick={() => onHorseSelected(horse.id)}>
                                         {horse.name}
                                         </span>
-                                    </Col>
-                                    <Col sm={3}>{isRaceStarted && horseBets}</Col>
-                                    <Col sm={1}>
+                                        </Col>
+                                        <Col sm={3}>{isRaceStarted && horseBets}</Col>
+                                        <Col sm={1}>
                                             <span
                                                 style={{
                                                     height: `${HORSE_EM}em`,
@@ -75,12 +87,12 @@ const RaceInfo = () => {
                                                     <HorseImage horseColor={horse.color}/>
                                                 </TweenOne>
                                             </span>
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col sm={9}><ProgressBar striped variant="success" now={0} animated/></Col>
-                        </Row>)
-                })}
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col sm={9}><ProgressBar striped variant="success" now={0} animated/></Col>
+                            </Row>)
+                    }) : getLoader()}
             </Card.Body>
         </Card>
     );

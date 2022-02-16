@@ -26,13 +26,12 @@ const playerSlice = createSlice({
         setConnetedWallet(state, action: PayloadAction<string | null>) {
             state.connectedWallet = action.payload;
         },
-        clearBet(state, action: PayloadAction<void>) {
+        clearBet(state, _action: PayloadAction<void>) {
             state.currentBet = initialBet;
         },
         setHorseToBetOn(state, action: PayloadAction<Horse>) {
             state.currentBet.selectedHorse = action.payload;
         },
-
         setCurrentBet(state, action: PayloadAction<number>) {
             state.currentBet.amount = action.payload;
         },

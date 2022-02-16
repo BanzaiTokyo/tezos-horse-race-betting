@@ -28,7 +28,7 @@ const PlaceBet = () => {
         event.preventDefault();
 
         placeBet(currentBetAmount, selectedHorse?.id, userWallet!).then(r => {
-         dispatch(playerActions.clearBet());
+                dispatch(playerActions.clearBet());
                 console.log('------------- the bet was successfully placed: ', r)
             }
         ).catch(e => console.log(e));
@@ -41,55 +41,53 @@ const PlaceBet = () => {
     }
 
     //we might want to use {balance} to limit the maximum bet the player can place.
-    return (<div>
-            <Form onSubmit={onPlaceBetClicked}>
-                <Form.Group as={Row} className="mb-3" controlId="formHorizontalEmail">
-                    <Form.Group as={Col} md="4" controlId="validationFormikUsername2">
+    return (
+        <Form onSubmit={onPlaceBetClicked}>
+            <Form.Group as={Row} className="mb-3" controlId="formHorizontalEmail">
+                <Form.Group as={Col} md="4" controlId="validationFormikUsername2">
 
-                        <InputGroup hasValidation>
-                            <InputGroup.Text>uUSD</InputGroup.Text>
-                            <Form.Control
-                                type="number"
-                                min="0"
-                                step="0.1"
-                                name={"amount"}
-                                onChange={(e) => onAmountChanged(e as any)}
-                                value={currentBetAmount}
-                                required
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                Incorrect amount.
-                            </Form.Control.Feedback>
-                        </InputGroup>
-                    </Form.Group>
-
-                    <Col>
-                        <Form.Select
-                            name={"horse"}
-                            aria-label="Default select example"
-                            onChange={onHorseSelected}
-                            value={selectedHorse?.id}
-                        >
-
-                            {horses.map((horse) => {
-                                return <option key={horse.id} value={horse.id}>{horse.name}</option>
-                            })}
-                        </Form.Select>
-                    </Col>
-                    <Col sm={3}>
-                        <div className="d-grid">
-                            {userWallet ? <Button variant="info" type="submit" disabled={!isBetReady}>
-                                    place bet
-                                </Button>
-                                :
-
-                                <ConnectButton/>}
-
-                        </div>
-                    </Col>
+                    <InputGroup hasValidation>
+                        <InputGroup.Text>uUSD</InputGroup.Text>
+                        <Form.Control
+                            type="number"
+                            min="0"
+                            step="0.1"
+                            name={"amount"}
+                            onChange={(e) => onAmountChanged(e as any)}
+                            value={currentBetAmount}
+                            required
+                        />
+                        <Form.Control.Feedback type="invalid">
+                            Incorrect amount.
+                        </Form.Control.Feedback>
+                    </InputGroup>
                 </Form.Group>
-            </Form>
-        </div>
+
+                <Col>
+                    <Form.Select
+                        name={"horse"}
+                        aria-label="Default select example"
+                        onChange={onHorseSelected}
+                        value={selectedHorse?.id}
+                    >
+
+                        {horses.map((horse) => {
+                            return <option key={horse.id} value={horse.id}>{horse.name}</option>
+                        })}
+                    </Form.Select>
+                </Col>
+                <Col sm={3}>
+                    <div className="d-grid">
+                        {userWallet ? <Button variant="info" type="submit" disabled={!isBetReady}>
+                                place bet
+                            </Button>
+                            :
+
+                            <ConnectButton/>}
+                    </div>
+                </Col>
+            </Form.Group>
+        </Form>
     );
 
 }
