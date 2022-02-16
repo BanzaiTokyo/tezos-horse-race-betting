@@ -19,6 +19,7 @@ async function main(): Promise<void> {
     let race = await races.get(race_number)
     if (race.laps.size > 0 && race.winner.toNumber() < 0) {
         let lap_epoch = race.laps.get((race.laps.size - 1).toString()).epoch.toNumber()
+        let last_bet_epoch = race.last_bet_epoch.toNumber()
         let oracle_storage: any = await tezos.contract
             .at(ORACLE)
             .then((oracle) => {
@@ -26,7 +27,7 @@ async function main(): Promise<void> {
             })
         let oracle_epoch = await oracle_storage.current_epoch.toNumber()
         console.log('Epoch in the lap', lap_epoch, 'in the oracle', oracle_epoch)
-        if (oracle_epoch - lap_epoch > 1) {
+        if (oracle_epoch - lap_epoch > 0 && (oracle_epoch - last_bet_epoch) > 1) {
             contract.then((contract) => {
                 console.log(`Calling next_lap()...`)
                 return contract.methods.next_lap().send()
