@@ -100,7 +100,7 @@ export const getUUSDBalance = async (wallet: string) => {
     const uusdContract = await Tezos.wallet.at(UUSD_CONTRACT);
     const uUSDStorage: ContractStorage = await uusdContract.storage();
     console.log('uUSD storage: ', uUSDStorage)
-    return uUSDStorage.ledger.get(wallet).then((balance: any) => balance.toNumber()).catch((e: any) => {
+    return uUSDStorage.ledger.get({"owner": wallet, "token_id": 0}).then((balance: any) => balance.toNumber()).catch((e: any) => {
         console.log(e);
         return 0;
     })
