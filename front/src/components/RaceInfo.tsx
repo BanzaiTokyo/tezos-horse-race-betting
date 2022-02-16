@@ -7,7 +7,7 @@ const RaceInfo = () => {
     const isRaceStarted: boolean = useSelector((state: RootState) => state.race.isStarted);
 
     const currentLap = useSelector((state: RootState) => state.race.currentLap);
-    const totalBidAmount = useSelector((state: RootState) => state.race.info.totalBidAmount);
+    const totalBetAmount = useSelector((state: RootState) => state.race.info.totalBetAmount);
     const raceNumber = useSelector((state: RootState) => state.race.info.raceNumber);
 
     return (
@@ -15,7 +15,7 @@ const RaceInfo = () => {
             <ListGroup horizontal>
                 <ListGroup.Item>race: <strong>#{raceNumber}</strong></ListGroup.Item>
                 <ListGroup.Item>lap: <strong>{(currentLap?.lapNumber ?? 0) + 1}</strong></ListGroup.Item>
-                <ListGroup.Item>bids: <strong>{totalBidAmount}</strong> uUSD</ListGroup.Item>
+                <ListGroup.Item>total bet: <strong>{totalBetAmount}</strong> uUSD</ListGroup.Item>
             </ListGroup> :
 
 

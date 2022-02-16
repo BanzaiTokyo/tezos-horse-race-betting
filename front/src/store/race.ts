@@ -19,7 +19,7 @@ const initialRaceState: RaceState = {
     horses: [],
     info: {
         lapNumber: 0,
-        totalBidAmount: 0,
+        totalBetAmount: 0,
         bets: []
     },
     currentLap: null,
@@ -57,13 +57,13 @@ const raceSlice = createSlice({
 
             function transformToFrontBet(bet: any) {
                 const selectedHorse: Horse = ensure<Horse>(horses.find((horse: Horse) => horse.id === bet.horse.toNumber()));
-                return {amount: bet.amount.toNumber(), selectedHorse, player: bet.player.toString()};
+                return {amount: (bet.amount.toNumber() / 1e12), selectedHorse, player: bet.player.toString()};
             }
 
             state.info = {
                 raceNumber: state.info.raceNumber,
                 lapNumber: laps.length - 1,
-                totalBidAmount: action.payload.bet_amount.toNumber(),
+                totalBetAmount: action.payload.bet_amount.toNumber() / 1e12,
                 bets: action.payload.bets.map((bet: any) => transformToFrontBet(bet)),
                 laps
             };

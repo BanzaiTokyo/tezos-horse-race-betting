@@ -1,7 +1,7 @@
 export default interface Horse {
     id:number;
     name: string;
-    totalBidAmount?: number;
+    totalBetAmount?: number;
     numberOfBids?: number;
     color: string;
 }
