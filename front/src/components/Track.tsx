@@ -69,10 +69,10 @@ const RaceInfo = () => {
                                 <Col sm={3} style={{marginRight: '-50px'}}>
                                     <Row>
                                         <Col sm={6}>
-                                        <span style={{color: horse.color}}
+                                        <strong style={{color: horse.color}}
                                               onClick={() => onHorseSelected(horse.id)}>
                                         {horse.name}
-                                        </span>
+                                        </strong>
                                         </Col>
                                         <Col sm={3}>{isRaceStarted && horseBets}</Col>
                                         <Col sm={1}>

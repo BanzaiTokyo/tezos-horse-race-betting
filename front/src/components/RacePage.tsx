@@ -2,18 +2,16 @@ import {Col, Row} from "react-bootstrap";
 import RaceInfo from "./RaceInfo";
 import Track from "./Track";
 import PlaceBet from "./PlaceBet";
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import React, {useEffect} from "react";
 import {readRaceContractStorage} from "../services/BeaconService";
 import {raceActions} from "../store/race";
 import PreviousLaps from "./PreviousLaps";
-import {RootState} from "../store";
 import AboutPage from "./AboutPage";
 
 
 const RacePage = () => {
     const dispatch = useDispatch();
-    const lapNumber = useSelector((state: RootState) => state.race.info.lapNumber);
 
     useEffect(() => {
         readRaceContractStorage().then(contractStorage => {
@@ -37,16 +35,16 @@ const RacePage = () => {
         </Row>
         <Row>
             <Col>
-                    <Track/>
+                <Track/>
             </Col>
         </Row>
         <Row>
-            {lapNumber > 0 && <Col >
+            <Col>
                 <p/>
                 <PreviousLaps/>
-            </Col>}
+            </Col>
         </Row>
-            <Row>
+        <Row>
             <Col>
                 <p/>
                 <AboutPage closeable/>
