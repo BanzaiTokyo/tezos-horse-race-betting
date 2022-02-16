@@ -130,7 +130,6 @@ class HorseRace(sp.Contract):
             ledger=sp.big_map({}, tkey=sp.TAddress, tvalue=sp.TNat),
             current_race=-1,
             races=sp.big_map({}, tkey=sp.TInt, tvalue=TRace.get_type()),
-            temp=sp.map(l={}, tkey=sp.TNat, tvalue=sp.TNat)
         )
 
     def get_epoch(self):
@@ -191,7 +190,6 @@ class HorseRace(sp.Contract):
         n.value = 0
         sp.for hp in handicap.value.items():
             win_probability.value = abs(10 - hp.value)
-            self.data.temp[60 + hp.key] = hp.value
             sp.for k in sp.range(0, win_probability.value):
                 randomiser_data.value[n.value+k] = hp.key
             n.value = n.value + win_probability.value
@@ -204,23 +202,19 @@ class HorseRace(sp.Contract):
         chances_left = sp.local('chances_left', 0)
         chances_tmp = sp.local('chances_tmp', sp.map(l={0: 0}))
         run_order = sp.local('run_order', sp.list(l=[], t=sp.TNat))
-        i_ah = sp.local('i_ah', 0)
+        i = sp.local('i', 0)
         race = self.data.races[self.data.current_race]
-        sp.for c in chances.value.items():
-            self.data.temp[c.key] = c.value
         #sp.while sp.len(chances.value.keys()) > 0:
         sp.for i_for in sp.range(0, sp.len(race.horses)):
             chances_left.value = sp.len(chances.value.keys())
-            self.data.temp[70+i_for] = chances_left.value
             p = self._random(chances_left.value, i_for)
             participant = chances.value[p]
-            self.data.temp[90+i_for] = participant
             run_order.value.push(participant)
-            i_ah.value = 0
+            i.value = 0
             sp.for chance in chances.value.values():
                 sp.if chance != participant:
-                    chances_tmp.value[i_ah.value] = chance
-                    i_ah.value = i_ah.value + 1
+                    chances_tmp.value[i.value] = chance
+                    i.value = i.value + 1
             chances.value = chances_tmp.value
             chances_tmp.value = {}
         return run_order.value
@@ -278,7 +272,6 @@ class HorseRace(sp.Contract):
         # I compelled to do this nasty hack with abs(X - 0) otherwise "epoch" would be of type IntOrNat
         epoch = abs(self.get_epoch() - 0)
         sp.if epoch - race.last_bet_epoch >= 2:
-            self.data.temp = {}
             self.get_entropy(lap.epoch)
             sp.if self._race_continues(last_id):
                 race.laps[last_id+1] = self.make_lap(race, epoch)
