@@ -4,7 +4,7 @@ import Track from "./Track";
 import PlaceBet from "./PlaceBet";
 import {useDispatch} from "react-redux";
 import {useEffect} from "react";
-import {readContractStorage} from "../services/BeaconService";
+import {readRaceContractStorage} from "../services/BeaconService";
 import {raceActions} from "../store/race";
 
 
@@ -12,7 +12,7 @@ const RacePage = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        readContractStorage().then(contractStorage => {
+        readRaceContractStorage().then(contractStorage => {
             dispatch(raceActions.setRaceId(contractStorage.current_race.toNumber()));
             return contractStorage.races.get(contractStorage.current_race)
         }).then((race) => {

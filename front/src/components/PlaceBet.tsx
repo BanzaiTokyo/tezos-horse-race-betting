@@ -40,6 +40,7 @@ const PlaceBet = () => {
         return;
     }
 
+    //we might want to use {balance} to limit the maximum bet the player can place.
     return (<div>
             <Form onSubmit={onPlaceBetClicked}>
                 <Form.Group as={Row} className="mb-3" controlId="formHorizontalEmail">
@@ -51,7 +52,6 @@ const PlaceBet = () => {
                                 type="number"
                                 min="0"
                                 step="0.1"
-                                max={balance}
                                 name={"amount"}
                                 onChange={(e) => onAmountChanged(e as any)}
                                 value={currentBetAmount}
