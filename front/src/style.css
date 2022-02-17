@@ -36,7 +36,7 @@
 }
 
 .running svg {
-  animation: swing 1s linear infinite;
+  animation: swing 1200ms linear infinite;
 }
 
 @keyframes swing {

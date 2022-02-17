@@ -10,6 +10,7 @@ interface RaceState {
     horses: Horse[];
     info: RaceInfo;
     currentLap: Lap | null;
+    updateHorsePositionsTicker: boolean;
 }
 
 
@@ -23,6 +24,7 @@ const initialRaceState: RaceState = {
         bets: []
     },
     currentLap: null,
+    updateHorsePositionsTicker: true,
 };
 
 
@@ -33,6 +35,9 @@ const raceSlice = createSlice({
 
         setRaceId(state, action: PayloadAction<number>) {
             state.info.raceNumber = action.payload;
+        },
+        setUpdateHorsePositionsTicker(state, action: PayloadAction<boolean>) {
+            state.updateHorsePositionsTicker = action.payload;
         },
         updateHorses(state, action: PayloadAction<Horse[]>) {
             state.horses = action.payload;

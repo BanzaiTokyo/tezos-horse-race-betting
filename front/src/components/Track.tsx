@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Card, Col, Container, ProgressBar, Row, Spinner} from "react-bootstrap";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../store";
@@ -8,6 +8,7 @@ import {ensure} from "../common/helpers";
 import TweenOne from "rc-tween-one";
 import HorseImage from "../assets/HorseImage";
 import Bet from "../models/Bet";
+import {raceActions} from "../store/race";
 
 const HORSE_ZERO_POSITION = 30;
 const TRACK_LENGTH = 670;
@@ -24,6 +25,18 @@ const RaceInfo = () => {
     const bets = useSelector((state: RootState) => state.race.info.bets);
     const currentLap = useSelector((state: RootState) => state.race.currentLap);
     const isContractStorageLoaded = useSelector((state: RootState) => state.race.isContractStorageLoaded);
+    const updateTicker = useSelector((state: RootState) => state.race.updateHorsePositionsTicker);
+
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            dispatch(raceActions.setUpdateHorsePositionsTicker(!updateTicker));
+            }, 1000);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [updateTicker]);
 
     function getPositionForHorse(horse: Horse) {
         const position: any = currentLap?.positions.findIndex((position) => position === horse.id);
