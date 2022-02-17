@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {Card, Col, Container, ProgressBar, Row, Spinner} from "react-bootstrap";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../store";

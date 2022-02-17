@@ -17,24 +17,36 @@ const RacePage = () => {
     const dispatch = useDispatch();
     const connectedWallet = useSelector((state: RootState) => state.player.connectedWallet);
     const prizeToWithdraw = useSelector((state: RootState) => state.player.prizeToWithdraw);
-
+    const refreshStorageIn = useSelector((state: RootState) => state.race.refreshStorageIn);
+    const isRefreshingStorage = useSelector((state: RootState) => state.race.isRefreshingStorage);
 
     useEffect(() => {
-        readRaceContractStorage().then(contractStorage => {
-            dispatch(raceActions.setRaceId(contractStorage.current_race.toNumber()));
-            return contractStorage.races.get(contractStorage.current_race)
-        }).then((race) => {
-            dispatch(raceActions.setContractStorage(race));
-        });
-    }, []);
+        const timer = setTimeout(() => {
+            if (refreshStorageIn <= 0 && !isRefreshingStorage) {
+                dispatch(raceActions.setRefreshStorageIn(60_000))
+                dispatch(raceActions.setIsRefreshingStorage(true));
+                readRaceContractStorage().then(contractStorage => {
+                    dispatch(raceActions.setRaceId(contractStorage.current_race.toNumber()));
+                    return contractStorage.races.get(contractStorage.current_race)
+                }).then((race) => {
+                    dispatch(raceActions.setContractStorage(race));
+                }).finally(() => dispatch(raceActions.setIsRefreshingStorage(false)));
+            } else {
+                dispatch(raceActions.setRefreshStorageIn(refreshStorageIn - 1_000))
+            }
+        }, 1_000);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [refreshStorageIn]);
+
 
     useEffect(() => {
         connectedWallet && getAmountPlayerCanWithdraw(connectedWallet).then(prize => {
             dispatch(playerActions.setPrizeToWithdraw(prize));
         });
     }, [connectedWallet]);
-
-    console.log('prize: ', prizeToWithdraw)
 
     return (<div>
 

@@ -11,6 +11,8 @@ interface RaceState {
     info: RaceInfo;
     currentLap: Lap | null;
     updateHorsePositionsTicker: boolean;
+    refreshStorageIn: number;
+    isRefreshingStorage: boolean;
 }
 
 
@@ -25,6 +27,8 @@ const initialRaceState: RaceState = {
     },
     currentLap: null,
     updateHorsePositionsTicker: true,
+    refreshStorageIn: 0,
+    isRefreshingStorage: false,
 };
 
 
@@ -33,6 +37,12 @@ const raceSlice = createSlice({
     initialState: initialRaceState,
     reducers: {
 
+        setIsRefreshingStorage(state, action: PayloadAction<boolean>) {
+            state.isRefreshingStorage = action.payload;
+        },
+        setRefreshStorageIn(state, action: PayloadAction<number>) {
+            state.refreshStorageIn = action.payload;
+        },
         setRaceId(state, action: PayloadAction<number>) {
             state.info.raceNumber = action.payload;
         },
