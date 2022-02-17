@@ -60,12 +60,14 @@ const RaceInfo = () => {
                             height: `${HORSE_EM}em`,
                             border: "1px dotted",
                         } : {height: `${HORSE_EM}em`};
+                        const runningClass = isRaceStarted ? "running" : ""
 
                         const horseProgress = isRaceStarted ? getPositionForHorse(horse) : HORSE_ZERO_POSITION;
                         const horseBets: number = bets.filter((bet: Bet) => bet?.selectedHorse?.id === horse.id).reduce((acc, bet) => acc + bet.amount, 0);
 
+                        const className = "align-items-center " + runningClass
                         return (
-                            <Row key={horse.id} className="align-items-center" style={rowStyle}>
+                            <Row key={horse.id} className={className} style={rowStyle}>
                                 <Col sm={3} style={{marginRight: '-50px'}}>
                                     <Row>
                                         <Col sm={6}>
