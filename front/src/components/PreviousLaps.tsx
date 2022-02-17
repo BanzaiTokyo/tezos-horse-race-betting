@@ -16,12 +16,12 @@ const PreviousLaps = () => {
 
     return (<div>
             {previousLaps.length > 0 && <Card>
-                <Card.Header>Previous laps</Card.Header>
+                <Card.Header>Winners of the the previous laps</Card.Header>
                 <Card.Body>
                     {previousLaps.map((lap: Lap) => {
                         return (<ListGroup horizontal key={lap.lapNumber}>
                                 <ListGroup.Item>lap: <strong>#{lap.lapNumber + 1}</strong></ListGroup.Item>
-                                <ListGroup.Item>winner: <strong style={{color: lap.winner?.color}}>{lap.winner?.name}</strong></ListGroup.Item>
+                                <ListGroup.Item><strong style={{color: lap.winner?.color}}>{lap.winner?.name}</strong></ListGroup.Item>
                             </ListGroup>
                         )
                     })}
