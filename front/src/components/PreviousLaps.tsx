@@ -16,7 +16,7 @@ const PreviousLaps = () => {
 
     return (<div>
             {previousLaps.length > 0 && <Card>
-                <Card.Header>Winners of the the previous laps</Card.Header>
+                <Card.Header>Leaders of the the previous laps</Card.Header>
                 <Card.Body>
                     {previousLaps.map((lap: Lap) => {
                         return (<ListGroup horizontal key={lap.lapNumber}>
