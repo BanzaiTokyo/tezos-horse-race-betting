@@ -78,6 +78,7 @@ class TRace:
     def get_type():
         return sp.TRecord(
             horses = sp.TList(THorse.get_type()),
+            jackpot = sp.TNat,
             bets = sp.TList(TBet.get_type()),
             bet_amount = sp.TNat,
             last_bet_epoch = sp.TNat,
@@ -85,9 +86,10 @@ class TRace:
             winner = sp.TInt
         )
 
-    def make(horses):
+    def make(horses, jackpot):
         return sp.set_type_expr(sp.record(
             horses = horses,
+            jackpot = jackpot,
             bets = [],
             bet_amount = 0,
             last_bet_epoch = 0,
@@ -130,6 +132,7 @@ class HorseRace(sp.Contract):
             ledger=sp.big_map({}, tkey=sp.TAddress, tvalue=sp.TNat),
             current_race=-1,
             races=sp.big_map({}, tkey=sp.TInt, tvalue=TRace.get_type()),
+            temp = sp.map(tkey=sp.TNat, tvalue=sp.TNat)
         )
 
     def get_epoch(self):
@@ -230,8 +233,11 @@ class HorseRace(sp.Contract):
             return rnd < abs(self.data.new_lap_probability - last_id)
         return False
 
-    def _distribute_prize(self):
-        race = self.data.races[self.data.current_race]
+    def _distribute_prize(self, race):
+        """
+        calculate prize amount for each winning bet
+        :return: jackpot amount for the next race
+        """
         sp.verify(race.winner >= 0, 'Race is not finished')
         total_win_bets = sp.local('total_win_bets', 0)
         win_bets = sp.local('win_bets', sp.list(t=sp.TPair(sp.TAddress, sp.TNat)))
@@ -240,14 +246,19 @@ class HorseRace(sp.Contract):
                 total_win_bets.value += bet.amount
                 win_bets.value.push(sp.pair(bet.player, bet.amount))
         sp.for win_bet in win_bets.value:
-            share = sp.snd(win_bet) + abs(race.bet_amount-total_win_bets.value)*sp.snd(win_bet)/total_win_bets.value
-            self.data.ledger[sp.fst(win_bet)] = self.data.ledger.get(sp.fst(win_bet), 0) + share
+            ratio = sp.snd(win_bet)/total_win_bets.value
+            prize = sp.snd(win_bet) + (abs(race.bet_amount-total_win_bets.value) + race.jackpot) * ratio
+            self.data.ledger[sp.fst(win_bet)] = self.data.ledger.get(sp.fst(win_bet), 0) + prize
+        jackpot = sp.local('jackpot', total_win_bets.value)
+        sp.if total_win_bets.value == sp.nat(0):
+            jackpot.value = race.bet_amount + race.jackpot
+        return jackpot.value
 
-    def make_race(self):
+    def make_race(self, jackpot):
         horses = self._build_horses(self.data.num_horses)
         self.data.current_race = self.data.current_race + 1
         race_num = self.data.current_race
-        self.data.races[race_num] = TRace.make(horses=horses)
+        self.data.races[race_num] = TRace.make(horses=horses, jackpot=jackpot)
 
     @sp.entry_point
     def init_race(self):
@@ -257,7 +268,7 @@ class HorseRace(sp.Contract):
             sp.verify(race.winner < 0, 'There is another race in progress')
         epoch = abs(self.get_epoch() - 1)
         self.get_entropy(epoch)
-        self.make_race()
+        self.make_race(jackpot=0)
 
     @sp.entry_point
     def next_lap(self):
@@ -278,8 +289,8 @@ class HorseRace(sp.Contract):
             sp.else:
                 sp.for p in lap.positions:
                     race.winner = sp.to_int(p)
-                self._distribute_prize()
-                self.make_race()
+                jackpot = self._distribute_prize(race)
+                self.make_race(jackpot)
 
     @sp.entry_point
     def place_bet(self, params):

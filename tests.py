@@ -13,6 +13,7 @@ def test():
     now = sp.timestamp(1644220005)
     owner = sp.test_account("owner").address
     player1 = sp.test_account("player1").address
+    player2 = sp.test_account("player2").address
     randomizer = Randomizer.Randomizer(
         admin=owner,
         metadata=sp.big_map({
@@ -32,22 +33,35 @@ def test():
     scenario.h4("Place bet")
     race = c1.data.races[0]
     scenario.verify(sp.len(race.laps) == 0)
-    scenario += c1.place_bet(horse=0, amount=100).run(source=player1)
+    scenario += c1.place_bet(horse=3, amount=1000).run(source=player1)
     scenario.verify(sp.len(race.laps) == 1)
-    for h in range(1, 6):
-        scenario += c1.place_bet(horse=h, amount=100).run(source=player1)
-    for l in range(1, 5):
+    for l in range(1, 2):
         scenario.h4(f"Go to lap {l}")
         scenario += oracle.inc_epoch().run()
         scenario += oracle.inc_epoch().run()
-        scenario += c1.next_lap().run(source=owner, now=now.add_minutes(l))
+        scenario += c1.next_lap().run(source=owner)
+    scenario.verify(c1.data.current_race == 1)
+    scenario.h4('No winner, we should have a jackpot')
+    scenario.show(c1.data.races[1].jackpot)
+    scenario.verify(c1.data.races[1].jackpot == 900)  # all bets from the prev race
     scenario.h4(f"Mustn't go to next lap, new race is not started")
     scenario += oracle.inc_epoch().run()
     scenario += oracle.inc_epoch().run()
-    scenario += c1.next_lap().run(source=owner, now=now.add_minutes(31), valid=False, exception='Race is not started')
-    scenario.h4("Player balance")
+    scenario += c1.next_lap().run(source=owner, valid=False, exception='Race is not started')
+    scenario += c1.place_bet(horse=4, amount=500).run(source=player1)
+    scenario += c1.place_bet(horse=4, amount=500).run(source=player1)
+    scenario += c1.place_bet(horse=4, amount=500).run(source=player2)
+    for l in range(1, 2):
+        scenario.h4(f"Go to lap {l}")
+        scenario += oracle.inc_epoch().run()
+        scenario += oracle.inc_epoch().run()
+        scenario += c1.next_lap().run(source=owner, now=now.add_minutes(10))
+    scenario.show(c1.data.races[1].winner)
     scenario.show(c1.balance_of(player1))
-    scenario.verify(c1.data.ledger[player1] == sp.len(race.horses)*90)
+    scenario.show(c1.balance_of(player2))
+    scenario.verify(c1.data.races[1].winner == 4)
+    scenario.verify(c1.data.ledger[player1] == 900)
+    scenario.verify(c1.data.ledger[player2] == 450)
     scenario += c1.withdraw().run(source=player1)
     scenario.verify(~c1.data.ledger.contains(player1))
 
