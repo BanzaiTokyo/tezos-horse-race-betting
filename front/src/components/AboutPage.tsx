@@ -66,7 +66,7 @@ const AboutPage = (props: any) => {
                             <OverlayTrigger
                                 placement="bottom"
                                 overlay={<Tooltip id="button-tooltip-2">
-                                    in fact the probability each horse winning the lap will be inversely proportional to
+                                    in fact the probability of each horse winning the lap will be inversely proportional to
                                     the
                                     amount of tokens placed on it.
                                 </Tooltip>}
