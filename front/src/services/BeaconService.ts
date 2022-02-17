@@ -105,3 +105,13 @@ export const getUUSDBalance = async (wallet: string) => {
         return 0;
     })
 }
+
+export const getAmountPlayerCanWithdraw = async (wallet: string) => {
+    //TODO: not sure how it should be done, either at the time of readRaceContractStorage or with a separate call
+    // but the idea is to get the amount of prize money that the player can withdraw
+    return 100;
+}
+
+export const withdrawPrize = async (wallet: string) => {
+    //TODO: implement
+}

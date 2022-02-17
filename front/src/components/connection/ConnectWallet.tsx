@@ -2,7 +2,7 @@ import React from "react";
 import {Button} from "react-bootstrap";
 import {playerActions} from "../../store/player";
 import {useDispatch} from "react-redux";
-import {getMyAddress, getUUSDBalance} from "../../services/BeaconService";
+import {getAmountPlayerCanWithdraw, getMyAddress, getUUSDBalance} from "../../services/BeaconService";
 
 
 const ConnectButton = (): JSX.Element => {
@@ -13,8 +13,6 @@ const ConnectButton = (): JSX.Element => {
             dispatch(playerActions.setConnetedWallet(walletAddress));
             getUUSDBalance(walletAddress).then((balance: number) => {dispatch(playerActions.setBalance(balance))})
         }).catch(error => console.log(error));
-
-
     }
 
     return (

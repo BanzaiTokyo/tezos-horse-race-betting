@@ -7,6 +7,7 @@ interface PlayerState {
     connectedWallet: string | null;
     currentBet: Bet;
     balance: number;
+    prizeToWithdraw: number;
 }
 
 const initialBet = {isProcessing: false, amount: 0, isSubmitted: false};
@@ -14,7 +15,8 @@ const initialBet = {isProcessing: false, amount: 0, isSubmitted: false};
 const initialPlayerState: PlayerState = {
     connectedWallet: null,
     currentBet: initialBet,
-    balance: 0
+    balance: 0,
+    prizeToWithdraw: 0
 };
 
 
@@ -22,7 +24,9 @@ const playerSlice = createSlice({
     name: 'player',
     initialState: initialPlayerState,
     reducers: {
-
+        setPrizeToWithdraw(state, action: PayloadAction<number>) {
+            state.prizeToWithdraw = action.payload;
+        },
         setConnetedWallet(state, action: PayloadAction<string | null>) {
             state.connectedWallet = action.payload;
         },
