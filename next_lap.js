@@ -3,7 +3,7 @@ import { InMemorySigner } from '@taquito/signer'
 import BigNumber from 'bignumber.js'
 const acc = require('./acc.json')
 const RPC_URL = 'https://rpc.hangzhounet.teztnets.xyz/'
-const CONTRACT = 'KT1GLHoohNd5eRoyjU2c2vcERovsXrEai855'
+const CONTRACT = 'KT1KsJMkyNxBmb75RF929wTxgpbr65TZT5iK'
 const ORACLE = 'KT1DMrr8pgcdrPnqxkfqwXSQuVg9mP8v5ShV'
 
 async function main(): Promise<void> {

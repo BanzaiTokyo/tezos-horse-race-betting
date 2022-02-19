@@ -3,7 +3,7 @@ import { InMemorySigner } from '@taquito/signer'
 import BigNumber from 'bignumber.js'
 const acc = require('./acc.json')
 const RPC_URL = 'https://rpc.hangzhounet.teztnets.xyz/'
-const CONTRACT = 'KT1GLHoohNd5eRoyjU2c2vcERovsXrEai855'
+const CONTRACT = 'KT1KsJMkyNxBmb75RF929wTxgpbr65TZT5iK'
 const ORACLE = 'KT1DMrr8pgcdrPnqxkfqwXSQuVg9mP8v5ShV'
 
 async function main(): Promise<void> {
@@ -15,9 +15,19 @@ async function main(): Promise<void> {
                 return contract.storage()
             })
     let race_number = contract_storage.current_race.toNumber()
+    if (race_number < 0) {
+	contract.then((contract) => {
+	    console.log(`Calling init_race()...`)
+	    return contract.methods.init_race().send()
+	})
+	.then((op) => {
+	    console.log(`Awaiting for ${op.hash} to be confirmed...`)
+	    return op.confirmation(1).then(() => op.hash)
+	})
+    }
     let races = await contract_storage.races
     let race = await races.get(race_number)
-    if (race.laps.size > 0 && race.winner.toNumber() < 0) {
+    if (race.hasOwnProperty('laps') && race.laps.size > 0 && race.winner.toNumber() < 0) {
         let lap_epoch = race.laps.get((race.laps.size - 1).toString()).epoch.toNumber()
         let last_bet_epoch = race.last_bet_epoch.toNumber()
         let oracle_storage: any = await tezos.contract
