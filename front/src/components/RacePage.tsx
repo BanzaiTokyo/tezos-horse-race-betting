@@ -43,8 +43,8 @@ const RacePage = () => {
 
 
     useEffect(() => {
-        connectedWallet && getAmountPlayerCanWithdraw(connectedWallet).then(prize => {
-            dispatch(playerActions.setPrizeToWithdraw(prize));
+        connectedWallet && getAmountPlayerCanWithdraw(connectedWallet).then((prize: number) => {
+                dispatch(playerActions.setPrizeToWithdraw(prize));
         });
     }, [connectedWallet]);
 

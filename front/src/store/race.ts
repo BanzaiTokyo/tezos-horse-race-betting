@@ -65,7 +65,7 @@ const raceSlice = createSlice({
             let laps: Lap[] = [];
             for (let i = 0; i < action.payload.laps.size; i++) {
                 let lapSrc = action.payload.laps.get(i.toString());
-                let horseIdx = lapSrc.positions[0];
+                let horseIdx = lapSrc.positions[lapSrc.positions.length - 1];
 
                 //FIXME: tested on the single lap. The winner is actually the last horse
                 let lap: Lap = {lapNumber: i, winner: horses[horseIdx], positions: lapSrc.positions.map((position:any) => position.toNumber())};
