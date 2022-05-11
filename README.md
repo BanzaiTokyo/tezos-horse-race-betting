@@ -1,4 +1,4 @@
-# tezos-ukraine-hackathon-ubinetic
+# tezos-horse-race-betting
 This is a smart contract for the Tezos blockchain to organise a betting game kind of horse races.
 
 Depencencies:
