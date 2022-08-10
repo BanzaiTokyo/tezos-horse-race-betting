@@ -15,13 +15,15 @@ const statsSlice = createSlice({
     name: 'stats',
     initialState: initialStatsState,
     reducers: {
-
-        updatePreviousRaces(state, action: PayloadAction<RaceInfo[]>) {
-            state.previousRaces = action.payload;
-        },
-
-        addRaceToStats(state, action: PayloadAction<RaceInfo>) {
-            state.previousRaces.push(action.payload);
+        addRaceToStats(state, action: PayloadAction<any>) {
+            let r: RaceInfo = {
+                raceNumber: action.payload.raceNumber.toNumber(),
+                lapNumber: action.payload.laps.size,
+                totalBetAmount: action.payload.bet_amount.toNumber() / 1e12,
+                winner: action.payload.horses[action.payload.winner.toNumber()].name,
+                bets: [],
+            }
+            state.previousRaces.push(r);
         },
     },
 });

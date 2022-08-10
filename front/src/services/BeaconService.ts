@@ -106,12 +106,13 @@ export const getUUSDBalance = async (wallet: string) => {
     })
 }
 
-export const getAmountPlayerCanWithdraw = async (wallet: string) => {
+export const getAmountPlayerCanWithdraw = async (contractStorage: ContractStorage, wallet: string) => {
     //TODO: not sure how it should be done, either at the time of readRaceContractStorage or with a separate call
     // but the idea is to get the amount of prize money that the player can withdraw
-    return readRaceContractStorage().then(contractStorage => {
-        return contractStorage.ledger.get(wallet)
-    }).then((balance: any) => balance.toNumber()).catch((e: any) => {
+    return contractStorage.ledger.get(wallet)
+            .then((balance: any) => {
+               return  balance?.toNumber()  / 1e12 || 0
+            }).catch((e: any) => {
         console.log(e);
         return 0;
     })

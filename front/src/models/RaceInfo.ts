@@ -6,6 +6,6 @@ export default interface RaceInfo {
     lapNumber: number;
     totalBetAmount: number;
     bets: Bet[]
-    winnerWallets?: string[];
+    winner?: string;
     laps?: Lap[];
 }

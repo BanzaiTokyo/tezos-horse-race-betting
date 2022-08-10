@@ -5,9 +5,9 @@
   "dependencies": {
     "@ledgerhq/hw-transport-u2f": "^5.22.0",
     "@reduxjs/toolkit": "^1.7.2",
-    "@taquito/beacon-wallet": "^10.2.1",
-    "@taquito/ledger-signer": "^10.2.1",
-    "@taquito/taquito": "^10.2.1",
+    "@taquito/beacon-wallet": "^13.0.1",
+    "@taquito/ledger-signer": "^13.0.1",
+    "@taquito/taquito": "^13.0.1",
     "@types/jest": "^27.4.0",
     "@types/ledgerhq__hw-transport-u2f": "^4.21.2",
     "@types/node": "^16.11.22",
@@ -21,6 +21,7 @@
     "os": "^0.1.2",
     "os-browserify": "^0.3.0",
     "qrcode-generator": "^1.4.4",
+    "rc-tween-one": "^3.0.3",
     "react": "^17.0.2",
     "react-app-rewired": "^2.1.11",
     "react-bootstrap": "^2.1.2",
@@ -29,8 +30,7 @@
     "react-router-bootstrap": "^0.25.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.2",
-    "typescript": "^4.1.4",
-    "rc-tween-one": "^3.0.3"
+    "typescript": "^4.1.4"
   },
   "scripts": {
     "start": "react-scripts start",

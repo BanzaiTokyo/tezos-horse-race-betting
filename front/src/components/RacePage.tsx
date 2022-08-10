@@ -10,7 +10,9 @@ import PreviousLaps from "./PreviousLaps";
 import AboutPage from "./AboutPage";
 import {RootState} from "../store";
 import {playerActions} from "../store/player";
+import {statsActions} from "../store/stats";
 import Withdraw from "./Withdraw";
+import PrevRaceInfo from "./PrevRaceInfo";
 
 
 const RacePage = () => {
@@ -21,31 +23,46 @@ const RacePage = () => {
     const isRefreshingStorage = useSelector((state: RootState) => state.race.isRefreshingStorage);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            if (refreshStorageIn <= 0 && !isRefreshingStorage) {
-                dispatch(raceActions.setRefreshStorageIn(60_000))
-                dispatch(raceActions.setIsRefreshingStorage(true));
-                readRaceContractStorage().then(contractStorage => {
-                    dispatch(raceActions.setRaceId(contractStorage.current_race.toNumber()));
-                    return contractStorage.races.get(contractStorage.current_race)
-                }).then((race) => {
-                    dispatch(raceActions.setContractStorage(race));
-                }).finally(() => dispatch(raceActions.setIsRefreshingStorage(false)));
-            } else {
-                dispatch(raceActions.setRefreshStorageIn(refreshStorageIn - 1_000))
+        if (isRefreshingStorage)
+            return
+        const timer = setTimeout(async () => {
+            dispatch(raceActions.setIsRefreshingStorage(true));
+            const contractStorage = await readRaceContractStorage();
+            dispatch(raceActions.setRaceId(contractStorage.current_race.toNumber()));
+            const promises = [
+                contractStorage.races.get(contractStorage.current_race)
+                .then((race: any) => dispatch(raceActions.setContractStorage(race))),
+            ]
+            if (contractStorage.current_race) {
+                promises.push(
+                    contractStorage.races.get(contractStorage.current_race-1)
+                        .then((race: any) => {
+                            race.raceNumber = contractStorage.current_race
+                            dispatch(statsActions.addRaceToStats(race))
+                        }),
+                )
             }
-        }, 1_000);
+            if (connectedWallet) {
+                promises.push(
+                    getAmountPlayerCanWithdraw(contractStorage, connectedWallet)
+                    .then((prize: number) => dispatch(playerActions.setPrizeToWithdraw(prize)))
+                )
+            }
+            Promise.all(promises).finally(() => dispatch(raceActions.setIsRefreshingStorage(false)));
+        }, 60_000);
 
         return () => {
             clearTimeout(timer);
         };
-    }, [refreshStorageIn]);
+    }, [isRefreshingStorage]);
 
 
     useEffect(() => {
-        connectedWallet && getAmountPlayerCanWithdraw(connectedWallet).then((prize: number) => {
-                dispatch(playerActions.setPrizeToWithdraw(prize));
-        });
+        if (connectedWallet) {
+            readRaceContractStorage()
+                .then(contractStorage => getAmountPlayerCanWithdraw(contractStorage, connectedWallet))
+                .then((prize: number) => dispatch(playerActions.setPrizeToWithdraw(prize)))
+        }
     }, [connectedWallet]);
 
     return (<div>
@@ -64,6 +81,7 @@ const RacePage = () => {
         <Row>
             <Col>
                 <p/>
+                <PrevRaceInfo />
                 <PreviousLaps/>
             </Col>
             {prizeToWithdraw > 0 && <Col>
