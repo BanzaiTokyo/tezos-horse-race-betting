@@ -17,7 +17,7 @@ const statsSlice = createSlice({
     reducers: {
         addRaceToStats(state, action: PayloadAction<any>) {
             let r: RaceInfo = {
-                raceNumber: action.payload.raceNumber.toNumber(),
+                raceNumber: action.payload.raceNumber,
                 lapNumber: action.payload.laps.size,
                 totalBetAmount: action.payload.bet_amount.toNumber() / 1e12,
                 winner: action.payload.horses[action.payload.winner.toNumber()].name,

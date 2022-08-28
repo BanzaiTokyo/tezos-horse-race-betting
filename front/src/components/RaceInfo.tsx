@@ -14,7 +14,7 @@ const RaceInfo = () => {
         (isRaceStarted) ?
             <ListGroup horizontal>
                 <ListGroup.Item>race: <strong>#{raceNumber}</strong></ListGroup.Item>
-                <ListGroup.Item>lap: <strong>{(currentLap?.lapNumber ?? 0) + 1}</strong></ListGroup.Item>
+                <ListGroup.Item>lap: <strong>#{currentLap?.lapNumber ?? 1}</strong></ListGroup.Item>
                 <ListGroup.Item>total bet: <strong>{totalBetAmount}</strong> uUSD</ListGroup.Item>
             </ListGroup> :
 

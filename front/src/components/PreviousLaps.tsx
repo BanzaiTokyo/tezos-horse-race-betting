@@ -12,7 +12,7 @@ const PreviousLaps = () => {
     //FIXME: this is for testing because the race currently has only one lap
     if (!isContractStorageLoaded || laps!.length < -1) return <div></div>;
 
-    const previousLaps = laps!;// laps!.slice(0, -1);
+    const previousLaps = laps!.slice(0, -1);
 
     return (<div>
             {previousLaps.length > 0 && <Card>
@@ -20,7 +20,7 @@ const PreviousLaps = () => {
                 <Card.Body>
                     {previousLaps.map((lap: Lap) => {
                         return (<ListGroup horizontal key={lap.lapNumber}>
-                                <ListGroup.Item>lap: <strong>#{lap.lapNumber + 1}</strong></ListGroup.Item>
+                                <ListGroup.Item>lap: <strong>#{lap.lapNumber}</strong></ListGroup.Item>
                                 <ListGroup.Item><strong style={{color: lap.winner?.color}}>{lap.winner?.name}</strong></ListGroup.Item>
                             </ListGroup>
                         )

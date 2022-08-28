@@ -21,6 +21,7 @@ const initialRaceState: RaceState = {
     isStarted: false,
     horses: [],
     info: {
+        raceNumber: 0,
         lapNumber: 0,
         totalBetAmount: 0,
         bets: []
@@ -68,7 +69,7 @@ const raceSlice = createSlice({
                 let horseIdx = lapSrc.positions[lapSrc.positions.length - 1];
 
                 //FIXME: tested on the single lap. The winner is actually the last horse
-                let lap: Lap = {lapNumber: i, winner: horses[horseIdx], positions: lapSrc.positions.map((position:any) => position.toNumber())};
+                let lap: Lap = {lapNumber: i+1, winner: horses[horseIdx], positions: lapSrc.positions.map((position:any) => position.toNumber())};
                 laps.push(lap);
             }
 

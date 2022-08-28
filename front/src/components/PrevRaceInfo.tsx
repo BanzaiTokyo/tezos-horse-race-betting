@@ -6,7 +6,8 @@ import {RootState} from "../store";
 const PrevRaceInfo = () => {
     const isRaceStarted: boolean = useSelector((state: RootState) => state.race.isStarted);
     const prevRaces = useSelector((state: RootState) => state.stats.previousRaces);
-    const race = prevRaces[0];
+    const race = prevRaces[prevRaces.length - 1];
+    const _ = useSelector((state: RootState) => state.stats.previousRaces.length);
 
     return (<div>
         {!isRaceStarted && race && <Card>
